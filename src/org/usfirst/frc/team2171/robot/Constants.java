@@ -8,27 +8,27 @@
 package org.usfirst.frc.team2171.robot;
 
 public class Constants {
-	
+
 	public static double inchesToMeters(double inches) {
 		return inches * 2.54 * 0.01;
 	}
-	
+
 	public static class Drive {
-		
+
 		/*
 		public static final int kFrontLeftPort  = 1;
 		public static final int kRearLeftPort   = 0;
 		public static final int kFrontRightPort = 3;
 		public static final int kRearRightPort  = 2;
-		*/
-		
+		 */
+
 		public static final int kFrontLeftCANID  = 0;
 		public static final int kFrontRightCANID = 0;
 		public static final int kRearLeftCANID   = 0;
 		public static final int kRearRightCANID  = 0;
-		
+
 		public static final double kDeadband = 0.08;
-		
+
 		// Motion Profiling
 		public static final int kEncCodesPerRev = 1440;
 		public static final double kWheelDiameter = inchesToMeters(4.0); // m

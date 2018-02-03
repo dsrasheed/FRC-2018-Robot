@@ -31,21 +31,21 @@ import com.kauailabs.navx.frc.AHRS;
 
 
 public class Robot extends TimedRobot {
-	
+
 	public static final Drive drive = new Drive();
-	
+
 	public static ControlBoard cb;
 	public static AHRS gyro;
 
 	private SendableChooser<Command> autoChooser;
 	private SendableChooser<String> trajectoryChooser;
-		
+
 	private Notifier debugLoop;
-	
+
 	@Override
 	public void robotInit() {
 		setupDriverStation();
-		
+
 		try {
 			gyro = new AHRS(SPI.Port.kMXP);
 		} catch (RuntimeException ex) {
@@ -66,7 +66,7 @@ public class Robot extends TimedRobot {
 	@Override
 	public void autonomousInit() {
 		Command auto = autoChooser.getSelected();
-		
+
 		if (auto != null) {
 			if (auto.getClass().equals(FollowPath.class)) {
 				String name = trajectoryChooser.getSelected();
@@ -95,52 +95,52 @@ public class Robot extends TimedRobot {
 	@Override
 	public void teleopPeriodic() {
 		Scheduler.getInstance().run();
-		
+
 		if (cb.gyroResetPressed())
 			gyro.reset();
 	}
-	
+
 
 	@Override
 	public void testPeriodic() {
 		Scheduler.getInstance().run();
 	}
-	
+
 	public void setupDriverStation() {
 		// Setup robot input
 		cb = new ControlBoard();
-		
+
 		// Setup choosers
 		autoChooser = new SendableChooser<>();
 		autoChooser.addDefault("Do Nothing", null);
 		autoChooser.addObject("Follow a Trajectory", new FollowPath());
-		
+
 		trajectoryChooser = new SendableChooser<>();
 		URL trajURL = Robot.class.getResource(Constants.Drive.kTrajectoriesDirName);
 		SmartDashboard.putBoolean("Trajectories Directory Found", trajURL != null);
-		
+
 		if (trajURL != null) {
 			File trajectories = new File(trajURL.toExternalForm());
 			for (String name : trajectories.list())
 				trajectoryChooser.addObject(name, name);
 		}
-		
+
 		SmartDashboard.putData("Auto mode", autoChooser);
 		SmartDashboard.putData("Auto Trajectory", trajectoryChooser);
-		
+
 		// Setup subsystem debugging
 		// Extend Loop with interface DebugLoop, create default (with default keyboard) method onLoop that calls outputToSmartDashboard,
 		// another method on DebugLoop interface. RoboSubsystem class will implement DebugLoop, abstract class will pass on implementation
 		// subclasses.
 		debugLoop = new Notifier(() -> {
 			drive.outputToSmartDashboard();
-			
+
 			// Debug Gyro
 			SmartDashboard.putBoolean("Gyro Is Calibrating", gyro.isCalibrating());
 			SmartDashboard.putBoolean("Gyro Is Connected", gyro.isConnected());
 			SmartDashboard.putNumber("Gyro Byte Count", gyro.getByteCount());
 			SmartDashboard.putNumber("Gyro Update Count", gyro.getUpdateCount());
-			
+
 			SmartDashboard.putNumber("Gyro Angle: ", gyro.getAngle());
 			SmartDashboard.putNumber("Gyro Yaw", gyro.getYaw());
 		});

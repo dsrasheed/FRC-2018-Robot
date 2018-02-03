@@ -14,33 +14,33 @@ import org.usfirst.frc.team2171.robot.commands.OperatorDrive;
 import com.robodogs.lib.util.ControllerMap;
 
 public class ControlBoard {
-	
+
 	public Joystick driveStick;
-	
+
 	public ControlBoard() {
 		driveStick = new Joystick(0);
-		
+
 		JoystickButton driveSafety = new JoystickButton(driveStick, ControllerMap.RB);
-		
+
 		driveSafety.whileHeld(new OperatorDrive());
 	}
-	
+
 	public double getDriveX() {
 		return driveStick.getRawAxis(ControllerMap.leftJoyXAxis);
 	}
-	
+
 	public double getDriveY() {
 		return -(driveStick.getRawAxis(ControllerMap.leftJoyYAxis));
 	}
-	
+
 	public double getDriveTwist() {
 		return driveStick.getRawAxis(ControllerMap.rightJoyXAxis);
 	}
-	
+
 	public double getAngularPower() {
 		return driveStick.getRawAxis(ControllerMap.rightJoyXAxis);
 	}
-	
+
 	public boolean gyroResetPressed() {
 		return driveStick.getRawButtonReleased(ControllerMap.Back);
 	}

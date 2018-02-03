@@ -1,7 +1,7 @@
 package com.robodogs.lib.util;
 
 public class ControllerMap {
-	
+
 	// Buttons
 	public static int A              = 1;
 	public static int B              = 2;
@@ -13,7 +13,7 @@ public class ControllerMap {
 	public static int Start          = 8;
 	public static int leftJoyButton  = 9;
 	public static int rightJoyButton = 10;
-	
+
 	// Axis
 	public static int leftJoyXAxis  = 0;
 	public static int leftJoyYAxis  = 1;
