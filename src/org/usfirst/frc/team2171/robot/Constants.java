@@ -15,17 +15,17 @@ public class Constants {
 	
 	public static class Drive {
 		
-		/* Talon SRX Required
-		public static final int kLeftFrontCANID  = 0;
-		public static final int kLeftBackCANID   = 1;
-		public static final int kRightFrontCANID = 2;
-		public static final int kRightBackCANID  = 3;*/
-		
-		// REMOVE
+		/*
 		public static final int kFrontLeftPort  = 1;
 		public static final int kRearLeftPort   = 0;
 		public static final int kFrontRightPort = 3;
 		public static final int kRearRightPort  = 2;
+		*/
+		
+		public static final int kFrontLeftCANID  = 0;
+		public static final int kFrontRightCANID = 0;
+		public static final int kRearLeftCANID   = 0;
+		public static final int kRearRightCANID  = 0;
 		
 		public static final double kDeadband = 0.08;
 		

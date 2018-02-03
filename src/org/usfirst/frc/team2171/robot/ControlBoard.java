@@ -25,15 +25,15 @@ public class ControlBoard {
 		driveSafety.whileHeld(new OperatorDrive());
 	}
 	
-	public double getLeftStickX() {
+	public double getDriveX() {
 		return driveStick.getRawAxis(ControllerMap.leftJoyXAxis);
 	}
 	
-	public double getLeftStickY() {
+	public double getDriveY() {
 		return -(driveStick.getRawAxis(ControllerMap.leftJoyYAxis));
 	}
 	
-	public double getTwist() {
+	public double getDriveTwist() {
 		return driveStick.getRawAxis(ControllerMap.rightJoyXAxis);
 	}
 	

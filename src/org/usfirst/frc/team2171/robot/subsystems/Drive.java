@@ -15,27 +15,17 @@ import com.robodogs.lib.motion.TankTrajectory;
 import com.robodogs.lib.motion.TankEncoderFollower;
 import org.usfirst.frc.team2171.robot.Constants;
 import org.usfirst.frc.team2171.robot.Robot;
-import org.usfirst.frc.team2171.robot.subsystems.DriveHelper.MotorType;
 
 public class Drive extends Subsystem {
 	
-	/* TalonSRX Required
-	private TalonSRX leftMaster;
-	private TalonSRX leftSlave1;
-	private TalonSRX leftSlave2;
+	private TalonSRX frontLeft;
+	private TalonSRX frontRight;
+	private TalonSRX rearLeft;
+	private TalonSRX rearRight;
 	
-	private TalonSRX rightMaster;
-	private TalonSRX rightSlave1;
-	private TalonSRX rightSlave2;*/
-	
-	private Talon frontLeft;
-	private Talon frontRight;
-	private Talon rearLeft;
-	private Talon rearRight;
-	
-	/* TalonSRX Required
 	private ControlMode controlMode;
 	
+	/*
 	private Looper followerLoop;
 	private TankTrajectory traj;
 	
@@ -43,35 +33,46 @@ public class Drive extends Subsystem {
 	// class and read-only by other threads.
 	private volatile boolean isFollowing;*/
 	
-	public static class DriveSpeed {
+	public static enum MotorType {
+		kFrontLeft(0),
+		kFrontRight(1),
+		kRearLeft(2),
+		kRearRight(3);
+		
+		public int value;
+		
+		private MotorType(int value) {
+			this.value = value;
+		}
+	}
+	
+	public static class DriveSignal {
 		private double fl;
 		private double fr;
 		private double rl;
 		private double rr;
 		
-		public DriveSpeed(double fl, double fr, double rl, double rr) {
+		public DriveSignal(double fl, double fr, double rl, double rr) {
 			this.fl = fl;
 			this.fr = fr;
 			this.rl = rl;
 			this.rr = rr; 
 		}
-		public DriveSpeed(double[] wheelSpeeds) {
-			this(
-				wheelSpeeds[DriveHelper.MotorType.kFrontLeft.getValue()],
-				wheelSpeeds[DriveHelper.MotorType.kFrontRight.getValue()],
-				wheelSpeeds[DriveHelper.MotorType.kRearLeft.getValue()],
-				wheelSpeeds[DriveHelper.MotorType.kRearRight.getValue()]
-			);
+		
+		public DriveSignal(double[] wheelSpeeds) {
+			this(wheelSpeeds[MotorType.kFrontLeft.value], wheelSpeeds[MotorType.kFrontRight.value],
+				wheelSpeeds[MotorType.kRearLeft.value], wheelSpeeds[MotorType.kRearRight.value]);
 		}
+		
 		public double getFrontLeft()  { return fl; }
 		public double getFrontRight()   { return fr; }
 		public double getRearLeft() { return rl; }
 		public double getRearRight()  { return rr; }
 		
-		public static final DriveSpeed ZERO = new DriveSpeed(0,0,0,0);
+		public static final DriveSignal STOP = new DriveSignal(0,0,0,0);
 	}
 	
-	/* TalonSRX Required
+	/* Implements path following functionality
 	private class PathFollower implements Loop {
 		
 		private TankEncoderFollower follower;
@@ -115,41 +116,7 @@ public class Drive extends Subsystem {
 		}
 	}*/
 	
-	public Drive() {
-		/* TalonSRX Required
-		leftMaster = new TalonSRX(Constants.Drive.kLeftMasterCANID);
-		leftSlave1 = new TalonSRX(Constants.Drive.kLeftSlave1CANID);
-		leftSlave2 = new TalonSRX(Constants.Drive.kLeftSlave2CANID);
-		rightMaster = new TalonSRX(Constants.Drive.kRightMasterCANID);
-		rightSlave1 = new TalonSRX(Constants.Drive.kRightSlave1CANID);
-		rightSlave2 = new TalonSRX(Constants.Drive.kRightSlave2CANID);
-		
-		leftSlave1.set(ControlMode.Follower, Constants.Drive.kLeftMasterCANID);
-		leftSlave2.set(ControlMode.Follower, Constants.Drive.kLeftMasterCANID);
-		
-		rightSlave1.set(ControlMode.Follower, Constants.Drive.kRightMasterCANID);
-		rightSlave2.set(ControlMode.Follower, Constants.Drive.kRightMasterCANID);
-		
-		// !!!!!!Set back to Velocity once you find out what the max velocity is!!!!!!
-		controlMode = ControlMode.PercentOutput;
-		setSpeed(DriveSpeed.ZERO);
-		
-		leftMaster.setNeutralMode(NeutralMode.Brake);
-		rightMaster.setNeutralMode(NeutralMode.Brake);
-		
-		leftMaster.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
-		rightMaster.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
-		
-		leftMaster.setInverted(true);
-		leftMaster.setSensorPhase(true);*/
-		
-		frontLeft = new Talon(Constants.Drive.kFrontLeftPort);
-		frontRight = new Talon(Constants.Drive.kFrontRightPort);
-		rearLeft = new Talon(Constants.Drive.kRearLeftPort);
-		rearRight = new Talon(Constants.Drive.kRearRightPort);
-	}
-
-	/* TalonSRX Required
+	/*
 	public void startFollowing(TankTrajectory traj) {
 		if (isFollowing)
 			return;
@@ -166,43 +133,79 @@ public class Drive extends Subsystem {
 		return isFollowing;
 	}*/
 	
-	private double applyDeadband(double value) {
-		if (Math.abs(value) <= Constants.Drive.kDeadband)
-			return 0.0;
-		return value;
-	}
-	
-	public DriveSpeed mecanumDrive(double x, double y, double rotation) {
-		x = applyDeadband(x);
-		y = applyDeadband(y);
-		rotation = applyDeadband(rotation);
+	public Drive() {
+		frontLeft = new TalonSRX(Constants.Drive.kFrontLeftCANID);
+		frontRight = new TalonSRX(Constants.Drive.kFrontRightCANID);
+		rearLeft = new TalonSRX(Constants.Drive.kRearLeftCANID);
+		rearRight = new TalonSRX(Constants.Drive.kRearRightCANID);
 		
-		return DriveHelper.mecanumDrive(x, y, rotation, Robot.gyro.getYaw());
+		// Set back to ControlMode.Velocity once you find out what the max velocity is
+		controlMode = ControlMode.PercentOutput;
+		setSpeed(DriveSignal.STOP);
+		
+		frontLeft.setNeutralMode(NeutralMode.Brake);
+		frontRight.setNeutralMode(NeutralMode.Brake);
+		rearLeft.setNeutralMode(NeutralMode.Brake);
+		rearRight.setNeutralMode(NeutralMode.Brake);
+		
+		frontLeft.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
+		frontRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
+		rearLeft.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
+		rearRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
+		
+		// You'll have to see which to invert by running on horse
+		// leftMaster.setInverted(true);
+		// leftMaster.setSensorPhase(true);
+		
+		// Set voltage ramp, set current limit, set PID
+	}
+	
+	public void mecanumDrive(double x, double y, double rotation) {
+		setSpeed(DriveHelper.mecanumDrive(x, y, rotation, Robot.gyro.getYaw()));
 	}
 	
 	// Method is vulnerable to being called outside of commands
 	// Should synchronize talons?
-	public void setSpeed(DriveSpeed speed) {
-		setSpeed(speed.getFrontLeft(), speed.getFrontRight(), speed.getRearLeft(), speed.getRearRight());
+	public void setSpeed(DriveSignal speed) {
+		frontLeft.set(controlMode, speed.getFrontLeft());
+		frontRight.set(controlMode, speed.getFrontRight()); 
+		rearLeft.set(controlMode, speed.getRearLeft()); 
+		rearRight.set(controlMode, speed.getRearRight());
 	}
 	
-	// Method is vulnerable to being called outside of commands
-	// Should synchronize talons?
-	public void setSpeed(double fl, double fr, double rl, double rr) {
-		// When we have TalonSRXs, make sure to pass the mode into the set method
-		frontLeft.set(fl);
-		frontRight.set(-fr);
-		rearLeft.set(rl);
-		rearRight.set(rr);
-	}
+	
+	// Debugging state
+	private double maxFLVel = 0.0;
+	private double maxFRVel = 0.0;
+	private double maxRLVel = 0.0;
+	private double maxRRVel = 0.0;
 	
 	public void outputToSmartDashboard() {
-		/* Talon SRX Required
-		SmartDashboard.putNumber("Left Encoder Position (ticks)", leftMaster.getSelectedSensorPosition(0));
-		SmartDashboard.putNumber("Right Encoder Position (ticks)", rightMaster.getSelectedSensorPosition(0));
-		SmartDashboard.putNumber("Left Encoder Velocity (ticks/100ms)", leftMaster.getSelectedSensorVelocity(0));
-		SmartDashboard.putNumber("Right Encoder Velocity (ticks/100ms)", rightMaster.getSelectedSensorVelocity(0));
-		SmartDashboard.putBoolean("Is Following a Trajectory?", isFollowing);*/
+		// Position
+		SmartDashboard.putNumber("Front Left Position (ticks)", frontLeft.getSelectedSensorPosition(0));
+		SmartDashboard.putNumber("Front Right Position (ticks)", frontRight.getSelectedSensorPosition(0));
+		SmartDashboard.putNumber("Rear Left Position (ticks)", rearLeft.getSelectedSensorPosition(0));
+		SmartDashboard.putNumber("Rear Right Position (ticks)", rearRight.getSelectedSensorPosition(0));
+		
+		// Velocity
+		double flVel = frontLeft.getSelectedSensorVelocity(0);
+		double frVel = frontRight.getSelectedSensorVelocity(0);
+		double rlVel = rearLeft.getSelectedSensorVelocity(0);
+		double rrVel = rearRight.getSelectedSensorVelocity(0);
+		SmartDashboard.putNumber("Front Left Velocity (ticks/100ms)", flVel);
+		SmartDashboard.putNumber("Front Right Velocity (ticks/100ms)", frVel);
+		SmartDashboard.putNumber("Rear Left Velocity (ticks/100ms)", rlVel);
+		SmartDashboard.putNumber("Rear Right Velocity (ticks/100ms)", rrVel);
+		
+		// Max velocity
+		SmartDashboard.putNumber("Front Left Highest Velocity (ticks/100ms)", 
+				(maxFLVel = (flVel > maxFLVel ? flVel : maxFLVel)));
+		SmartDashboard.putNumber("Front Right Highest Velocity (ticks/100ms)", 
+				(maxFRVel = (frVel > maxFRVel ? frVel : maxFRVel)));
+		SmartDashboard.putNumber("Rear Left Highest Velocity (ticks/100ms)", 
+				(maxRLVel = (rlVel > maxRLVel ? rlVel : maxRLVel)));
+		SmartDashboard.putNumber("Rear Right Highest Velocity (ticks/100ms)", 
+				(maxRRVel = (rrVel > maxRRVel ? rrVel : maxRRVel)));
 	}
 
     public void initDefaultCommand() {}

@@ -18,10 +18,10 @@ public class OperatorDrive extends Command {
     }
 
     protected void execute() {
-    	double x = Robot.cb.getLeftStickX() * 0.4;
-    	double y = Robot.cb.getLeftStickY() * 0.4;
-    	double rotation = Robot.cb.getTwist() * 0.4;
-    	Robot.drive.setSpeed(Robot.drive.mecanumDrive(x, y, rotation));
+    	double x = Robot.cb.getDriveX();
+    	double y = Robot.cb.getDriveY();
+    	double rotation = Robot.cb.getDriveTwist();
+    	Robot.drive.mecanumDrive(x, y, rotation);
     }
 
     protected boolean isFinished() {
@@ -29,7 +29,7 @@ public class OperatorDrive extends Command {
     }
 
     protected void end() {
-    	Robot.drive.setSpeed(Drive.DriveSpeed.ZERO);
+    	Robot.drive.setSpeed(Drive.DriveSignal.STOP);
     }
 
     protected void interrupted() {

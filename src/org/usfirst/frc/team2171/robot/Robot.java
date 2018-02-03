@@ -98,25 +98,6 @@ public class Robot extends TimedRobot {
 		
 		if (cb.gyroResetPressed())
 			gyro.reset();
-		
-		// McGuiver PID tuning
-		if (cb.driveStick.getRawButtonReleased(ControllerMap.A))
-			DriveHelper.headingController.setP(DriveHelper.headingController.getP() - 0.01);
-		else if (cb.driveStick.getRawButtonReleased(ControllerMap.B))
-			DriveHelper.headingController.setP(DriveHelper.headingController.getP() + 0.01);
-		else if (cb.driveStick.getRawButtonReleased(ControllerMap.X))
-			DriveHelper.headingController.setI(DriveHelper.headingController.getI() - 0.001);
-		else if (cb.driveStick.getRawButtonReleased(ControllerMap.Y))
-			DriveHelper.headingController.setI(DriveHelper.headingController.getI() + 0.001);
-		else if (cb.driveStick.getRawButtonReleased(ControllerMap.LB))
-			DriveHelper.headingController.setD(DriveHelper.headingController.getD() - 0.001);
-		else if (cb.driveStick.getRawButtonReleased(ControllerMap.RB))
-			DriveHelper.headingController.setD(DriveHelper.headingController.getD() + 0.001);
-		
-		SmartDashboard.putNumber("Heading Controller P: ", DriveHelper.headingController.getP());
-		SmartDashboard.putNumber("Heading Controller I: ", DriveHelper.headingController.getI());
-		SmartDashboard.putNumber("Heading Controller D: ", DriveHelper.headingController.getD());
-		SmartDashboard.putNumber("Heading Controller Setpoint", DriveHelper.headingController.getSetpoint());
 	}
 	
 
