@@ -37,10 +37,6 @@ public class ControlBoard {
         return driveStick.getRawAxis(ControllerMap.rightJoyXAxis);
     }
 
-    public double getAngularPower() {
-        return driveStick.getRawAxis(ControllerMap.rightJoyXAxis);
-    }
-
     public boolean gyroResetPressed() {
         return driveStick.getRawButtonReleased(ControllerMap.Back);
     }

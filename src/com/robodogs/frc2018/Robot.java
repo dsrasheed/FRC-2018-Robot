@@ -24,32 +24,30 @@ import com.robodogs.frc2018.commands.FollowPath;
 import com.robodogs.frc2018.subsystems.Drive;
 
 import com.robodogs.lib.util.ControllerMap;
-import com.robodogs.frc2018.subsystems.DriveHelper;
+import com.robodogs.frc2018.DriveHelper;
 
 import com.kauailabs.navx.frc.AHRS;
 
 
 public class Robot extends TimedRobot {
 
-    public static final Drive drive = new Drive();
-
-    public static ControlBoard cb;
+    public static Drive drive;
     public static AHRS gyro;
+    public static ControlBoard cb;
 
     private SendableChooser<Command> autoChooser;
     private SendableChooser<String> trajectoryChooser;
-
     private Notifier debugLoop;
 
     @Override
     public void robotInit() {
-        setupDriverStation();
-
         try {
             gyro = new AHRS(SPI.Port.kMXP);
         } catch (RuntimeException ex) {
             DriverStation.reportError("Error setting up navx: " + ex.getMessage(), true);
         }
+        initSubsystems();
+        setupDriverStation();
     }
 
     @Override
@@ -104,12 +102,16 @@ public class Robot extends TimedRobot {
     public void testPeriodic() {
         Scheduler.getInstance().run();
     }
+    
+    public void initSubsystems() {
+        drive = new Drive();
+    }
 
     public void setupDriverStation() {
-        // Setup robot input
+        // Controller input
         cb = new ControlBoard();
 
-        // Setup choosers
+        // Choosers
         autoChooser = new SendableChooser<>();
         autoChooser.addDefault("Do Nothing", null);
         autoChooser.addObject("Follow a Trajectory", new FollowPath());
@@ -127,7 +129,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putData("Auto mode", autoChooser);
         SmartDashboard.putData("Auto Trajectory", trajectoryChooser);
 
-        // Setup subsystem debugging
+        // Subsystem debugging
         // Extend Loop with interface DebugLoop, create default (with default keyboard) method onLoop that calls outputToSmartDashboard,
         // another method on DebugLoop interface. RoboSubsystem class will implement DebugLoop, abstract class will pass on implementation
         // subclasses.

@@ -3,6 +3,7 @@ package com.robodogs.frc2018.subsystems;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.Talon;
+import edu.wpi.first.wpilibj.PIDController;
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -13,8 +14,11 @@ import com.robodogs.lib.loops.Loop;
 import com.robodogs.lib.loops.Looper;
 import com.robodogs.lib.motion.TankTrajectory;
 import com.robodogs.lib.motion.TankEncoderFollower;
+import com.robodogs.lib.util.PIDTuner;
+
 import com.robodogs.frc2018.Constants;
 import com.robodogs.frc2018.Robot;
+import com.robodogs.frc2018.DriveHelper;
 
 public class Drive extends Subsystem {
 
@@ -24,6 +28,9 @@ public class Drive extends Subsystem {
     private TalonSRX rearRight;
 
     private ControlMode controlMode;
+    
+    private PIDController headingCtrl;
+    double rotation = 0.0;
 
     /*
 	private Looper followerLoop;
@@ -152,16 +159,36 @@ public class Drive extends Subsystem {
         frontRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
         rearLeft.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
         rearRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
-
+        
         // You'll have to see which to invert by running on horse
         // leftMaster.setInverted(true);
         // leftMaster.setSensorPhase(true);
 
         // Set voltage ramp, set current limit, set PID
+        
+       /* headingCtrl = new PIDController(0.0, 0.0, 0.0, Robot.gyro, (double out) -> {
+            
+        });*/
     }
 
-    public void mecanumDrive(double x, double y, double rotation) {
-        setSpeed(DriveHelper.mecanumDrive(x, y, rotation, Robot.gyro.getYaw()));
+    public void mecanumDrive(double x, double y, double rot) {
+        x = DriveHelper.applyDeadband(x);
+        y = DriveHelper.applyDeadband(y);
+        rot = DriveHelper.applyDeadband(rot);
+        double gyroAngle = Robot.gyro.getYaw();
+
+        double[] rotated = DriveHelper.rotateVector(x, y, gyroAngle);
+        x = rotated[0];
+        y = rotated[1];
+
+        double[] wheelSpeeds = new double[4];
+        wheelSpeeds[Drive.MotorType.kFrontLeft.value] = y - x + rot;
+        wheelSpeeds[Drive.MotorType.kFrontRight.value] = y + x - rot;
+        wheelSpeeds[Drive.MotorType.kRearLeft.value] = y + x + rot;
+        wheelSpeeds[Drive.MotorType.kRearRight.value] = y - x - rot;
+        DriveHelper.normalize(wheelSpeeds);
+
+        setSpeed(new DriveSignal(wheelSpeeds));
     }
 
     // Method is vulnerable to being called outside of commands
