@@ -1,7 +1,12 @@
 #!/bin/sh
+
+# Temporary build script
 cd src
 javac -cp '.:../lib/ntcore.jar' *.java
 cd ..
-mkdir bin
-mv src/*.class src/*.fxml bin/
+if [ ! -d 'bin/' ]; then
+    mkdir bin
+fi
+mv src/*.class bin/
+cp src/*.fxml bin/
 
