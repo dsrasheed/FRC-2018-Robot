@@ -26,6 +26,8 @@ public class Drive extends Subsystem {
     private TalonSRX frontRight;
     private TalonSRX rearLeft;
     private TalonSRX rearRight;
+    
+    PIDTuner speedTuner;
 
     private ControlMode controlMode;
     
@@ -165,6 +167,9 @@ public class Drive extends Subsystem {
         // leftMaster.setSensorPhase(true);
 
         // Set voltage ramp, set current limit, set PID
+        speedTuner = new PIDTuner((p, i, d) -> {
+            SmartDashboard.putNumber("YOUO", p);
+        }, "drivebase_speed");
         
        /* headingCtrl = new PIDController(0.0, 0.0, 0.0, Robot.gyro, (double out) -> {
             

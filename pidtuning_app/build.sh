@@ -8,5 +8,5 @@ if [ ! -d 'bin/' ]; then
     mkdir bin
 fi
 mv src/*.class bin/
-cp src/*.fxml bin/
+cp src/*.fxml  src/*.css bin/
 

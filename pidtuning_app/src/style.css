@@ -1,0 +1,23 @@
+.root {
+    -fx-background-color: white;
+}
+
+#side-bar {
+    -fx-border-left-width: "1px";
+    -fx-border-color: lightgray;
+}
+
+#entry-name-label {
+    -fx-font: 14px Lato;
+}
+
+.label, .text-field, .button {
+    -fx-font-family: "Lato";
+    -fx-font-size: 14px;
+}
+
+.button {
+    -fx-background-color: rgb(20,20,20);
+    -fx-text-fill: white;
+    -fx-border-radius: 0;
+}
