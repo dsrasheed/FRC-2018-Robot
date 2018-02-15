@@ -23,9 +23,9 @@
 }
 
 .green {
-    -fx-background-color: green;    
+    -fx-background-color: rgb(0, 230, 111);    
 }
 
 .red {
-    -fx-background-color: red;
+    -fx-background-color: firebrick;
 }

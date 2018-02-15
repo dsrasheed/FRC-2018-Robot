@@ -11,7 +11,9 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableValue;
 import edu.wpi.first.networktables.EntryListenerFlags;
-import edu.wpi.first.networktables.TableEntryListener;
+import edu.wpi.first.networktables.EntryNotification;
+
+import java.util.function.Consumer;
 
 public class Controller {
 
@@ -31,10 +33,12 @@ public class Controller {
     private double prevD;
     private NetworkTable pidTable;
     
-    private TableEntryListener errorListener = new TableEntryListener() {
+    private Consumer<EntryNotification> errorListener = new Consumer<EntryNotification>() {
         @Override
-        public void valueChanged(NetworkTable table, String key, NetworkTableEntry entry,NetworkTableValue value, int flags) {
-            
+        public void accept(EntryNotification event) {
+            double timestamp = event.value.getDoubleArray()[0];
+            double error = event.value.getDoubleArray()[1];
+            System.out.println(timestamp + ": " + error);
         }
     };
     private int errorListenerHandle;
@@ -92,7 +96,7 @@ public class Controller {
         NetworkTableEntry enabledEntry = pidTable.getEntry(entryName + "_enabled");
         boolean enabled = enabledEntry.getBoolean(false);
         if (!enabled) {
-            double setpoint = 0.0;
+            double setpoint = 0;
             try {
                 setpoint = Double.parseDouble(setpointField.getText());
             } catch (Exception e) {
@@ -100,18 +104,24 @@ public class Controller {
                 System.err.println("Setpoint Parsing Error");
                 return;
             }
-            pidTable.getEntry(entryName + "_setpoint").setDouble(setpoint);        
-            errorListenerHandle = pidTable.addEntryListener(entryName + "_error", errorListener, 
+            
+            // Set the target of the mechanism to tune
+            pidTable.getEntry(entryName + "_setpoint").setDouble(setpoint); 
+            
+            // Add listener to update the graph when the mechanism reports its errors
+            errorListenerHandle = pidTable.getEntry(entryName + "_error").addListener(errorListener, 
                     EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
             
             startBtn.getStyleClass().remove("green");
             startBtn.getStyleClass().add("red");
+            startBtn.setText("Stop");
         }
         else {
             pidTable.removeEntryListener(errorListenerHandle);
             
             startBtn.getStyleClass().remove("red");
             startBtn.getStyleClass().add("green");
+            startBtn.setText("Start");
         }
         enabledEntry.setBoolean(!enabled);
     }
