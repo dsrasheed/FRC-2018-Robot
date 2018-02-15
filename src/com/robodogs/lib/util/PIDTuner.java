@@ -6,48 +6,89 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.EntryListenerFlags;
 
 import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.Timer;
+
+import com.robodogs.lib.loops.Loop;
+import com.robodogs.lib.loops.Looper;
 
 public class PIDTuner {
     
+    private static final double kDefaultTuningPeriod = 0.05;
+    
     private static NetworkTable pidTable = NetworkTableInstance.getDefault().getTable("pid_tuning");
     
-    private NetworkTableEntry pEntry;
-    private NetworkTableEntry iEntry;
-    private NetworkTableEntry dEntry;
-    
     // TODO: Change to double array to reduce repeat code
+    private PIDTunable tunable;
+    private String name;
     private double p;
     private double i;
     private double d;
-    private String name;
     
-    public static interface PIDChangeListener {
-        public void onPIDChange(double p, double i, double d);
-    }
-    
-    private static class PIDControllerUpdater implements PIDChangeListener {
-        private PIDController pidCtrl;
-        public PIDControllerUpdater(PIDController pidCtrl) {
-            this.pidCtrl = pidCtrl;
+    private Looper tuningLooper;
+    private Loop tuningLoop = new Loop() {
+        
+        private double startTime;
+        
+        @Override
+        public void onStart() {
+            startTime = Timer.getFPGATimestamp();
         }
-        public void onPIDChange(double p, double i, double d) {
-            pidCtrl.setPID(p, i, d);
+        
+        @Override
+        public void onLoop() {
+            double currTime = Timer.getFPGATimestamp();
+            double timestamp = currTime - startTime;
+            pidTable.getEntry(name + "_error").setDoubleArray(new double[] {
+                timestamp, tunable.getError()
+            });
         }
-    }
+        
+        @Override
+        public void onStop() {
+        }
+    };
     
     public PIDTuner(PIDController pidCtrl, String name) {
-        this(new PIDControllerUpdater(pidCtrl), name, pidCtrl.getP(), pidCtrl.getI(), pidCtrl.getD());
+        this(new TunablePIDController(pidCtrl), name, pidCtrl.getP(), pidCtrl.getI(), pidCtrl.getD());
     }
     
-    public PIDTuner(PIDChangeListener listener, String name, double initP, double initI, double initD) {
+    public PIDTuner(PIDTunable tunable, String name, double initP, double initI, double initD) {
+        this(tunable, name, initP, initI, initD, kDefaultTuningPeriod);
+    }
+    
+    public PIDTuner(PIDTunable tunable, String name, double initP, double initI, double initD, double dt) {
+        this.tunable = tunable;
         this.name = name;
-        pEntry = pidTable.getEntry(name + "_p");
-        iEntry = pidTable.getEntry(name + "_i");
-        dEntry = pidTable.getEntry(name + "_d");
+        this.p = initP;
+        this.i = initI;
+        this.d = initD;
+        tuningLooper = new Looper(dt);
+        tuningLooper.register(tuningLoop);
         
-        p = initP;
-        i = initI;
-        d = initD;
+        initPIDListeners();
+        
+        NetworkTableEntry enabledEntry = pidTable.getEntry(name + "_enabled");
+        NetworkTableEntry setpointEntry = pidTable.getEntry(name + "_setpoint");
+        
+        enabledEntry.addListener(event -> {
+            if (event.value.getBoolean())
+                tuningLooper.start();
+            else
+                tuningLooper.stop();
+        }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+        
+        setpointEntry.addListener(event -> {
+            tunable.setSetpoint(event.value.getDouble());
+        }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+    }
+    
+    private void initPIDListeners() {
+        NetworkTableEntry pEntry = pidTable.getEntry(name + "_p");
+        NetworkTableEntry iEntry = pidTable.getEntry(name + "_i");
+        NetworkTableEntry dEntry = pidTable.getEntry(name + "_d");
+        
+        // Send the initial PID values so they don't need to be
+        // manually set up on the PC app
         pEntry.setDouble(p);
         iEntry.setDouble(i);
         dEntry.setDouble(d);
@@ -55,24 +96,24 @@ public class PIDTuner {
         pEntry.addListener(event -> {
             synchronized(this) {
                 p = event.value.getDouble();
-                listener.onPIDChange(p, i, d);
+                tunable.onPIDChange(p, i, d);
             }
         }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
         
         iEntry.addListener(event -> {
             synchronized(this) {
                 i = event.value.getDouble();
-                listener.onPIDChange(p, i, d);
+                tunable.onPIDChange(p, i, d);
             }
         }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
         
         iEntry.addListener(event -> {
             synchronized(this) {
                 d = event.value.getDouble();
-                listener.onPIDChange(p, i, d);
+                tunable.onPIDChange(p, i, d);
             }
         }, EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
-    }
+    } 
     
     public double getP() {
         synchronized(this) {
@@ -90,9 +131,5 @@ public class PIDTuner {
         synchronized(this) {
             return d;
         }
-    }
-    
-    public void setSetpoint(double value) {
-        pidTable.getEntry(name + "_sp").setDouble(value);
     }
 }

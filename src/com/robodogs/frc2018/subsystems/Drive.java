@@ -15,6 +15,7 @@ import com.robodogs.lib.loops.Looper;
 import com.robodogs.lib.motion.TankTrajectory;
 import com.robodogs.lib.motion.TankEncoderFollower;
 import com.robodogs.lib.util.PIDTuner;
+import com.robodogs.lib.util.PIDTunable;
 
 import com.robodogs.frc2018.Constants;
 import com.robodogs.frc2018.Robot;
@@ -60,6 +61,10 @@ public class Drive extends Subsystem {
         private double fr;
         private double rl;
         private double rr;
+        
+        public DriveSignal(double value) {
+            this(value, value, value, value);
+        }
 
         public DriveSignal(double fl, double fr, double rl, double rr) {
             this.fl = fl;
@@ -167,9 +172,46 @@ public class Drive extends Subsystem {
         // leftMaster.setSensorPhase(true);
 
         // Set voltage ramp, set current limit, set PID
-        speedTuner = new PIDTuner((p, i, d) -> {
-            SmartDashboard.putNumber("YOUO", p);
-        }, "drivebase_speed");
+        
+        speedTuner = new PIDTuner(new PIDTunable() {
+            double setpoint;
+            
+            @Override
+            public void onPIDChange(double p, double i, double d) {
+                frontLeft.config_kP(0, p, 0);
+                frontRight.config_kP(0, p, 0);
+                rearLeft.config_kP(0, p, 0);
+                rearRight.config_kP(0, p, 0);
+                
+                frontLeft.config_kI(0, i, 0);
+                frontRight.config_kI(0, i, 0);
+                rearLeft.config_kI(0, i, 0);
+                rearRight.config_kI(0, i, 0);
+                
+                frontLeft.config_kD(0, d, 0);
+                frontRight.config_kD(0, d, 0);
+                rearLeft.config_kD(0, d, 0);
+                rearRight.config_kD(0, d, 0);
+            }
+            @Override
+            public double getError() {
+                return frontLeft.getClosedLoopError(0);
+            }
+            @Override
+            public void setSetpoint(double setpoint) {
+                this.setpoint = setpoint;
+            }
+            @Override
+            public void start() {
+                controlMode = ControlMode.Velocity;
+                setSpeed(new DriveSignal(setpoint));
+            }
+            @Override
+            public void stop() {
+                controlMode = ControlMode.PercentOutput;
+                setSpeed(DriveSignal.STOP);
+            }
+        }, "drivebase_speed", Constants.Drive.kP, Constants.Drive.kI, Constants.Drive.kD);
         
        /* headingCtrl = new PIDController(0.0, 0.0, 0.0, Robot.gyro, (double out) -> {
             

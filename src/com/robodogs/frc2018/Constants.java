@@ -15,13 +15,6 @@ public class Constants {
 
     public static class Drive {
 
-        /*
-		public static final int kFrontLeftPort  = 1;
-		public static final int kRearLeftPort   = 0;
-		public static final int kFrontRightPort = 3;
-		public static final int kRearRightPort  = 2;
-         */
-
         public static final int kFrontLeftCANID  = 0;
         public static final int kFrontRightCANID = 0;
         public static final int kRearLeftCANID   = 0;
@@ -34,7 +27,7 @@ public class Constants {
         public static final double kWheelDiameter = inchesToMeters(4.0); // m
         public static final double kMaxVelocity = 1.0; // m/s
         public static final String kTrajectoriesDirName = "trajectories";
-        public static final double kP = 1.0;
+        public static final double kP = 0.0;
         public static final double kI = 0.0;
         public static final double kD = 0.0;
         public static final double kV = 1.0 / kMaxVelocity;

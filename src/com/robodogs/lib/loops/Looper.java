@@ -25,7 +25,7 @@ public class Looper {
     /*
      * @param period Number of times to call the runnable in a second
      */
-    public Looper(float period) {
+    public Looper(double period) {
         this.period = 1.0 / period;
     }
 
