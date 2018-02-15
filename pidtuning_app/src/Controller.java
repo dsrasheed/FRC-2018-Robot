@@ -1,5 +1,6 @@
 import javafx.fxml.FXML;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.LineChart;
@@ -7,22 +8,36 @@ import javafx.scene.chart.NumberAxis;
 
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableValue;
+import edu.wpi.first.networktables.EntryListenerFlags;
+import edu.wpi.first.networktables.TableEntryListener;
 
 public class Controller {
 
     private static final String kTableName = "pid_tuning";
     
     @FXML private BorderPane parent;
+    @FXML private TextField nameField;
     @FXML private TextField pField;
     @FXML private TextField iField;
     @FXML private TextField dField;
-    @FXML private TextField nameField;
+    @FXML private TextField setpointField;
+    @FXML private Button startBtn;
     
     private String entryName;
     private double prevP;
     private double prevI;
     private double prevD;
     private NetworkTable pidTable;
+    
+    private TableEntryListener errorListener = new TableEntryListener() {
+        @Override
+        public void valueChanged(NetworkTable table, String key, NetworkTableEntry entry,NetworkTableValue value, int flags) {
+            
+        }
+    };
+    private int errorListenerHandle;
     
     @FXML private void initialize() {
         createGraph();
@@ -45,7 +60,7 @@ public class Controller {
         }
     }
     
-    @FXML protected void sendData() {
+    @FXML protected void sendPIDData() {
         double p = 0, i = 0, d = 0;
         try {
             p = Double.parseDouble(pField.getText());
@@ -55,7 +70,7 @@ public class Controller {
         // TODO:implement custom NumberField to reject any characters other than
         // '.' and '0'-'9'.
         } catch (Exception e) {
-            System.err.println("Parsing Error");
+            System.err.println("PID Parsing Error");
             return;
         }
         
@@ -71,6 +86,34 @@ public class Controller {
         prevP = p;
         prevI = i;
         prevD = d;
+    }
+    
+    @FXML protected void toggleTuning() {
+        NetworkTableEntry enabledEntry = pidTable.getEntry(entryName + "_enabled");
+        boolean enabled = enabledEntry.getBoolean(false);
+        if (!enabled) {
+            double setpoint = 0.0;
+            try {
+                setpoint = Double.parseDouble(setpointField.getText());
+            } catch (Exception e) {
+                // TODO: Have a Text element to report the error to the user.
+                System.err.println("Setpoint Parsing Error");
+                return;
+            }
+            pidTable.getEntry(entryName + "_setpoint").setDouble(setpoint);        
+            errorListenerHandle = pidTable.addEntryListener(entryName + "_error", errorListener, 
+                    EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);
+            
+            startBtn.getStyleClass().remove("green");
+            startBtn.getStyleClass().add("red");
+        }
+        else {
+            pidTable.removeEntryListener(errorListenerHandle);
+            
+            startBtn.getStyleClass().remove("red");
+            startBtn.getStyleClass().add("green");
+        }
+        enabledEntry.setBoolean(!enabled);
     }
     
     private void createGraph() {

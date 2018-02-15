@@ -20,11 +20,11 @@
     </stylesheets>
     
     <left>
-    <VBox id="side-bar" spacing="10" alignment="center">
+    <VBox id="side-bar" spacing="20" alignment="center">
         <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
         
         <VBox spacing="10">
-            <Text id="entry-name-label" text="Network Table Entry Name"/>
+            <Text id="entry-name-text" text="Network Table Entry Name"/>
             <HBox spacing="10" >
                 <TextField fx:id="nameField" prefWidth="0"
                     HBox.hgrow="always"/>
@@ -51,9 +51,18 @@
             <HBox spacing="10" alignment="bottom_right"
                 GridPane.columnIndex="0" GridPane.rowIndex="6"
                 GridPane.columnSpan="2">
-                <Button text="Send" onAction="#sendData"/>  
+                <Button text="Send" onAction="#sendPIDData"/>  
             </HBox>
         </GridPane>
+        
+        <VBox spacing="10">
+            <Text id="setpoint-text" text="Setpoint"/>
+            <HBox spacing="10">
+                <TextField fx:id="setpointField" prefWidth="0"
+                    HBox.hgrow="always"/>
+                <Button fx:id="startBtn" styleClass="green" text="Start" onAction="#toggleTuning"/>
+            </HBox>
+        </VBox>
         
     </VBox>
     </left>

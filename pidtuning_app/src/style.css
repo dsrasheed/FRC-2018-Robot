@@ -7,7 +7,7 @@
     -fx-border-color: lightgray;
 }
 
-#entry-name-label {
+#entry-name-text, #setpoint-text {
     -fx-font: 14px Lato;
 }
 
@@ -20,4 +20,12 @@
     -fx-background-color: rgb(20,20,20);
     -fx-text-fill: white;
     -fx-border-radius: 0;
+}
+
+.green {
+    -fx-background-color: green;    
+}
+
+.red {
+    -fx-background-color: red;
 }
