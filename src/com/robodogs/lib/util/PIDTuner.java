@@ -13,7 +13,7 @@ import com.robodogs.lib.loops.Looper;
 
 public class PIDTuner {
     
-    private static final double kDefaultTuningPeriod = 0.05;
+    private static final double kDefaultTuningPeriod = 20.0; // 20 times per second
     
     private static NetworkTable pidTable = NetworkTableInstance.getDefault().getTable("pid_tuning");
     

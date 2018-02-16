@@ -9,6 +9,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.geometry.Insets?>
 <?import javafx.geometry.Pos?>
 
@@ -57,9 +58,8 @@
         
         <VBox spacing="10">
             <Text id="setpoint-text" text="Setpoint"/>
-            <HBox spacing="10">
-                <TextField fx:id="setpointField" prefWidth="0"
-                    HBox.hgrow="always"/>
+            <TextField fx:id="setpointField" prefWidth="0"/>
+            <HBox spacing="10" alignment="bottom_right">
                 <Button fx:id="startBtn" styleClass="green" text="Start" onAction="#toggleTuning"/>
             </HBox>
         </VBox>

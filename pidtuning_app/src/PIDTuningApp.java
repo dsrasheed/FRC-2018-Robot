@@ -12,7 +12,7 @@ public class PIDTuningApp extends Application {
        @Override
        public void start(Stage stage) throws Exception {
            Parent root = FXMLLoader.load(getClass().getResource("ui.fxml"));
-           Scene scene = new Scene(root);
+           Scene scene = new Scene(root, 1020, 600);
            stage.setScene(scene);
 		   stage.setResizable(true);
            stage.show();

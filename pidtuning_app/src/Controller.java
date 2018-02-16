@@ -1,6 +1,7 @@
 import javafx.fxml.FXML;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.chart.XYChart;
 import javafx.scene.chart.LineChart;
@@ -13,6 +14,8 @@ import edu.wpi.first.networktables.NetworkTableValue;
 import edu.wpi.first.networktables.EntryListenerFlags;
 import edu.wpi.first.networktables.EntryNotification;
 
+import java.util.List;
+import java.util.ArrayList;
 import java.util.function.Consumer;
 
 public class Controller {
@@ -33,19 +36,24 @@ public class Controller {
     private double prevD;
     private NetworkTable pidTable;
     
+    private List<List<Double>> errorData;
+    private String errorText;
+    
     private Consumer<EntryNotification> errorListener = new Consumer<EntryNotification>() {
         @Override
         public void accept(EntryNotification event) {
             double timestamp = event.value.getDoubleArray()[0];
             double error = event.value.getDoubleArray()[1];
             System.out.println(timestamp + ": " + error);
+            List<Double> data = new ArrayList<>();
+            data.add(timestamp);
+            data.add(error);
+            errorData.add(data);
         }
     };
     private int errorListenerHandle;
     
     @FXML private void initialize() {
-        createGraph();
-        
         prevP = 0;
         prevI = 0;
         prevD = 0;
@@ -54,7 +62,7 @@ public class Controller {
         ntInstance.startClient("10.21.71.22");
         pidTable = ntInstance.getTable(kTableName);
     }
-    
+
     @FXML protected void setEntryName() {
         entryName = nameField.getText();
         if (!entryName.equals("")) {
@@ -115,6 +123,9 @@ public class Controller {
             startBtn.getStyleClass().remove("green");
             startBtn.getStyleClass().add("red");
             startBtn.setText("Stop");
+        
+            errorData = new ArrayList<>();
+            System.out.println("<<<<<<STARTING>>>>>>>");
         }
         else {
             pidTable.removeEntryListener(errorListenerHandle);
@@ -122,11 +133,28 @@ public class Controller {
             startBtn.getStyleClass().remove("red");
             startBtn.getStyleClass().add("green");
             startBtn.setText("Start");
+            System.out.println("<<<<<<STOPPING>>>>>>>");
+            createGraph();
         }
         enabledEntry.setBoolean(!enabled);
     }
-    
+
     private void createGraph() {
+        NumberAxis xAxis = new NumberAxis();
+        NumberAxis yAxis = new NumberAxis();
+        xAxis.setLabel("Time");
+        yAxis.setLabel("Error");
         
+        LineChart<Number,Number> errorChart = new LineChart<>(xAxis,yAxis);
+        errorChart.setTitle(String.format("%f,%f,%f",prevP,prevI,prevD));
+        
+        XYChart.Series errorSeries = new XYChart.Series();
+        for (List<Double> data : errorData) {
+            errorSeries.getData().add(new XYChart.Data(data.get(0),data.get(1)));
+        }
+        errorChart.getData().add(errorSeries);
+        errorChart.setCreateSymbols(false);
+        parent.setCenter(errorChart);
     }
 }
+

@@ -152,10 +152,11 @@ public class Drive extends Subsystem {
         frontRight = new TalonSRX(Constants.Drive.kFrontRightCANID);
         rearLeft = new TalonSRX(Constants.Drive.kRearLeftCANID);
         rearRight = new TalonSRX(Constants.Drive.kRearRightCANID);
-
-        // Set back to ControlMode.Velocity once you find out what the max velocity is
-        controlMode = ControlMode.PercentOutput;
-        setSpeed(DriveSignal.STOP);
+        
+        frontLeft.selectProfileSlot(0, 0);
+        frontRight.selectProfileSlot(0, 0);
+        rearLeft.selectProfileSlot(0, 0);
+        rearRight.selectProfileSlot(0, 0);
 
         frontLeft.setNeutralMode(NeutralMode.Brake);
         frontRight.setNeutralMode(NeutralMode.Brake);
@@ -166,6 +167,12 @@ public class Drive extends Subsystem {
         frontRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
         rearLeft.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
         rearRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
+
+        frontRight.setInverted(true);
+        rearRight.setInverted(true);
+        
+        controlMode = ControlMode.PercentOutput;
+        setSpeed(DriveSignal.STOP);
         
         // You'll have to see which to invert by running on horse
         // leftMaster.setInverted(true);
@@ -195,21 +202,25 @@ public class Drive extends Subsystem {
             }
             @Override
             public double getError() {
+                System.out.println("Getting Error");
                 return frontLeft.getClosedLoopError(0);
             }
             @Override
             public void setSetpoint(double setpoint) {
                 this.setpoint = setpoint;
+                System.out.println("SETPOINT: " + setpoint);
             }
             @Override
             public void start() {
+                System.out.println("STARTING TO TUNE");
                 controlMode = ControlMode.Velocity;
-                setSpeed(new DriveSignal(setpoint));
+                //setSpeed(new DriveSignal(setpoint));
             }
             @Override
             public void stop() {
+                System.out.println("STOPPING TUNING");
                 controlMode = ControlMode.PercentOutput;
-                setSpeed(DriveSignal.STOP);
+                // setSpeed(DriveSignal.STOP);
             }
         }, "drivebase_speed", Constants.Drive.kP, Constants.Drive.kI, Constants.Drive.kD);
         
@@ -234,6 +245,11 @@ public class Drive extends Subsystem {
         wheelSpeeds[Drive.MotorType.kRearLeft.value] = y + x + rot;
         wheelSpeeds[Drive.MotorType.kRearRight.value] = y - x - rot;
         DriveHelper.normalize(wheelSpeeds);
+        
+        if (controlMode.equals(ControlMode.Velocity)) {
+            for (int i = 0; i < 4; i++)
+                wheelSpeeds[i] *= Constants.Drive.kMaxVelocity;
+        }
 
         setSpeed(new DriveSignal(wheelSpeeds));
     }
