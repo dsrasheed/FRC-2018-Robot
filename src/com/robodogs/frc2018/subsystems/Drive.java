@@ -162,23 +162,17 @@ public class Drive extends Subsystem {
         frontRight.setNeutralMode(NeutralMode.Brake);
         rearLeft.setNeutralMode(NeutralMode.Brake);
         rearRight.setNeutralMode(NeutralMode.Brake);
+        
+        frontRight.setInverted(true);
+        rearRight.setInverted(true);
 
         frontLeft.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
         frontRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
         rearLeft.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
         rearRight.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
-
-        frontRight.setInverted(true);
-        rearRight.setInverted(true);
         
         controlMode = ControlMode.PercentOutput;
         setSpeed(DriveSignal.STOP);
-        
-        // You'll have to see which to invert by running on horse
-        // leftMaster.setInverted(true);
-        // leftMaster.setSensorPhase(true);
-
-        // Set voltage ramp, set current limit, set PID
         
         speedTuner = new PIDTuner(new PIDTunable() {
             double setpoint;
@@ -224,9 +218,10 @@ public class Drive extends Subsystem {
             }
         }, "drivebase_speed", Constants.Drive.kP, Constants.Drive.kI, Constants.Drive.kD);
         
-       /* headingCtrl = new PIDController(0.0, 0.0, 0.0, Robot.gyro, (double out) -> {
-            
-        });*/
+        
+        headingCtrl = new PIDController(0.0, 0.0, 0.0, Robot.gyro, (double out) -> {
+            rotation = out;
+        });
     }
 
     public void mecanumDrive(double x, double y, double rot) {
@@ -234,10 +229,6 @@ public class Drive extends Subsystem {
         y = DriveHelper.applyDeadband(y);
         rot = DriveHelper.applyDeadband(rot);
         double gyroAngle = Robot.gyro.getYaw();
-
-        double[] rotated = DriveHelper.rotateVector(x, y, gyroAngle);
-        x = rotated[0];
-        y = rotated[1];
 
         double[] wheelSpeeds = new double[4];
         wheelSpeeds[Drive.MotorType.kFrontLeft.value] = y - x + rot;

@@ -31,6 +31,7 @@ public class PIDTuner {
         
         @Override
         public void onStart() {
+            tunable.start();
             startTime = Timer.getFPGATimestamp();
         }
         
@@ -45,6 +46,7 @@ public class PIDTuner {
         
         @Override
         public void onStop() {
+            tunable.stop();
         }
     };
     

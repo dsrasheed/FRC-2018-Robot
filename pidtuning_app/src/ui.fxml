@@ -21,10 +21,11 @@
     </stylesheets>
     
     <left>
-    <VBox id="side-bar" spacing="20" alignment="center">
+    <VBox id="side-bar" spacing="10" alignment="center">
         <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
         
-        <VBox spacing="10">
+        <VBox spacing="10" styleClass="side-bar-section">
+            <padding><Insets bottom="10"/></padding>
             <Text id="entry-name-text" text="Network Table Entry Name"/>
             <HBox spacing="10" >
                 <TextField fx:id="nameField" prefWidth="0"
@@ -33,7 +34,8 @@
             </HBox>
         </VBox>
     
-        <GridPane  hgap="10" vgap="10">
+        <GridPane  hgap="10" vgap="10" styleClass="side-bar-section">
+            <padding><Insets bottom="10"/></padding>
             <Label text="P"
                 GridPane.columnIndex="0" GridPane.rowIndex="2"/>
             <TextField fx:id="pField"
@@ -56,11 +58,20 @@
             </HBox>
         </GridPane>
         
-        <VBox spacing="10">
+        <VBox spacing="10" styleClass="side-bar-section">
+            <padding><Insets bottom="10"/></padding>
             <Text id="setpoint-text" text="Setpoint"/>
-            <TextField fx:id="setpointField" prefWidth="0"/>
-            <HBox spacing="10" alignment="bottom_right">
-                <Button fx:id="startBtn" styleClass="green" text="Start" onAction="#toggleTuning"/>
+            <HBox spacing="10">
+                <TextField fx:id="setpointField" prefWidth="0"
+                    HBox.hgrow="always"/>
+                <Button text="Send" onAction="#sendSetpoint"/>
+            </HBox>
+        </VBox>
+            
+        <VBox spacing="10">
+            <HBox spacing="10" alignment="center">
+                <Button fx:id="startBtn" styleClass="green" text="Start" onAction="#toggleTuning"
+                    HBox.hgrow="always"/>
             </HBox>
         </VBox>
         

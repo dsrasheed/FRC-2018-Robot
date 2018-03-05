@@ -9,6 +9,7 @@ public class TunablePIDController implements PIDTunable {
     }
     public void onPIDChange(double p, double i, double d) {
         pidCtrl.setPID(p, i, d);
+        pidCtrl.reset();
     }
     public void setSetpoint(double setpoint) {
         pidCtrl.setSetpoint(setpoint);

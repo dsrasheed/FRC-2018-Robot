@@ -7,6 +7,11 @@
     -fx-border-color: lightgray;
 }
 
+.side-bar-section {
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: gray;
+}
+
 #entry-name-text, #setpoint-text {
     -fx-font: 14px Lato;
 }

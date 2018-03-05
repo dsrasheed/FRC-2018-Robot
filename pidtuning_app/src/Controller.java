@@ -66,9 +66,12 @@ public class Controller {
     @FXML protected void setEntryName() {
         entryName = nameField.getText();
         if (!entryName.equals("")) {
-            pField.setText(new Double(pidTable.getEntry(entryName + "_p").getDouble(0.0)).toString());
-            iField.setText(new Double(pidTable.getEntry(entryName + "_i").getDouble(0.0)).toString());
-            dField.setText(new Double(pidTable.getEntry(entryName + "_d").getDouble(0.0)).toString());
+            prevP = pidTable.getEntry(entryName + "_p").getDouble(0.0);
+            prevI = pidTable.getEntry(entryName + "_i").getDouble(0.0);
+            prevD = pidTable.getEntry(entryName + "_d").getDouble(0.0);
+            pField.setText(new Double(prevP).toString());
+            iField.setText(new Double(prevI).toString());
+            dField.setText(new Double(prevD).toString());
         }
     }
     
@@ -100,22 +103,24 @@ public class Controller {
         prevD = d;
     }
     
+    @FXML protected void sendSetpoint() {
+        double setpoint = 0;
+        try {
+            setpoint = Double.parseDouble(setpointField.getText());
+        } catch (Exception e) {
+            System.err.println("Setpoint Parsing Error");
+            return;
+        }
+        
+        if (!entryName.equals("")) {
+            pidTable.getEntry(entryName + "_setpoint").setDouble(setpoint);
+        }
+    }
+    
     @FXML protected void toggleTuning() {
         NetworkTableEntry enabledEntry = pidTable.getEntry(entryName + "_enabled");
         boolean enabled = enabledEntry.getBoolean(false);
         if (!enabled) {
-            double setpoint = 0;
-            try {
-                setpoint = Double.parseDouble(setpointField.getText());
-            } catch (Exception e) {
-                // TODO: Have a Text element to report the error to the user.
-                System.err.println("Setpoint Parsing Error");
-                return;
-            }
-            
-            // Set the target of the mechanism to tune
-            pidTable.getEntry(entryName + "_setpoint").setDouble(setpoint); 
-            
             // Add listener to update the graph when the mechanism reports its errors
             errorListenerHandle = pidTable.getEntry(entryName + "_error").addListener(errorListener, 
                     EntryListenerFlags.kNew | EntryListenerFlags.kUpdate);

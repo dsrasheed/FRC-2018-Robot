@@ -21,7 +21,10 @@ import edu.wpi.first.wpilibj.SPI;
 
 import com.robodogs.lib.motion.TankTrajectory;
 import com.robodogs.frc2018.commands.FollowPath;
+
 import com.robodogs.frc2018.subsystems.Drive;
+import com.robodogs.frc2018.subsystems.Arm;
+import com.robodogs.frc2018.subsystems.Claw;
 
 import com.robodogs.lib.util.ControllerMap;
 import com.robodogs.frc2018.DriveHelper;
@@ -32,6 +35,8 @@ import com.kauailabs.navx.frc.AHRS;
 public class Robot extends TimedRobot {
 
     public static Drive drive;
+    public static Arm arm;
+    public static Claw claw;
     public static AHRS gyro;
     public static ControlBoard cb;
 
@@ -105,6 +110,8 @@ public class Robot extends TimedRobot {
     
     public void initSubsystems() {
         drive = new Drive();
+        arm = new Arm();
+        claw = new Claw();
     }
 
     public void setupDriverStation() {
@@ -135,6 +142,7 @@ public class Robot extends TimedRobot {
         // subclasses.
         debugLoop = new Notifier(() -> {
             drive.outputToSmartDashboard();
+            arm.outputToSmartDashboard();
 
             // Debug Gyro
             SmartDashboard.putBoolean("Gyro Is Calibrating", gyro.isCalibrating());
