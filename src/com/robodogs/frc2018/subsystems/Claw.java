@@ -2,25 +2,27 @@ package com.robodogs.frc2018.subsystems;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.command.Subsystem;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.Solenoid;
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 
 import com.robodogs.frc2018.Constants;
-import com.robodogs.frc2018.Robot;
 
 public class Claw extends Subsystem {
     
     private TalonSRX master;
     private TalonSRX slave;
     private DigitalInput limit;
-    private DoubleSolenoid left;
-    private DoubleSolenoid right;
+    
+    private Solenoid forward1;
+    private Solenoid forward2;
+    private Solenoid reverse1;
+    private Solenoid reverse2;
+    
+    private boolean isLifted;
 
     public Claw() {
         master = new TalonSRX(Constants.Claw.kMasterCANID);
@@ -42,8 +44,10 @@ public class Claw extends Subsystem {
         
         limit = new DigitalInput(Constants.Claw.kLimitPort);
         
-        left = new DoubleSolenoid(Constants.Claw.kLeftPistonForwardPort, Constants.Claw.kLeftPistonReversePort);
-        right = new DoubleSolenoid(Constants.Claw.kRightPistonForwardPort, Constants.Claw.kRightPistonReversePort);
+        forward1 = new Solenoid(Constants.Claw.kForwardPort1);
+        forward2 = new Solenoid(Constants.Claw.kForwardPort2);
+        reverse1 = new Solenoid(Constants.Claw.kReversePort1);
+        reverse2 = new Solenoid(Constants.Claw.kReversePort2);
     }
     
     public void suck() {
@@ -60,25 +64,30 @@ public class Claw extends Subsystem {
     }
     
     public void lift() {
-        setClawPosition(DoubleSolenoid.Value.kReverse);
-    }
-    
-    public void right() {
-        setClawPosition(DoubleSolenoid.Value.kForward);
-    }
-    
-    private void setClawPosition(DoubleSolenoid.Value value) {
-        left.set(value);
-        right.set(value);
+        forward1.set(true);
+        forward2.set(true);
+        reverse1.set(false);
+        reverse1.set(false);
+        
+        isLifted = true;
     }
     
     public void lower() {
+        forward1.set(false);
+        forward2.set(false);
+        reverse1.set(true);
+        reverse2.set(true);
         
+        isLifted = false;
     }
     
     public boolean hasCube() {
         //return limit.get();
         return false;
+    }
+    
+    public boolean isLifted() {
+        return isLifted;
     }
      
     public void initDefaultCommand() {

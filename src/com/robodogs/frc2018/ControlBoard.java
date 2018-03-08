@@ -10,12 +10,7 @@ package com.robodogs.frc2018;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 
-import com.robodogs.frc2018.commands.OperatorDrive;
-import com.robodogs.frc2018.commands.Spit;
-import com.robodogs.frc2018.commands.Suck;
-import com.robodogs.frc2018.commands.Ascend;
-import com.robodogs.frc2018.commands.Descend;
-
+import com.robodogs.frc2018.commands.*;
 import com.robodogs.lib.util.ControllerMap;
 
 public class ControlBoard {
@@ -24,12 +19,15 @@ public class ControlBoard {
 
     public ControlBoard() {
         driveStick = new Joystick(0);
+        
 
         JoystickButton driveSafety = new JoystickButton(driveStick, ControllerMap.RB),
                 spit = new JoystickButton(driveStick, ControllerMap.Y),
                 suck = new JoystickButton(driveStick, ControllerMap.A),
                 ascend = new JoystickButton(driveStick, ControllerMap.X),
-                descend = new JoystickButton(driveStick, ControllerMap.B);
+                descend = new JoystickButton(driveStick, ControllerMap.B),
+                toggleClaw = new JoystickButton(driveStick, ControllerMap.LB);
+                
                 
 
         driveSafety.whileHeld(new OperatorDrive());
@@ -37,6 +35,7 @@ public class ControlBoard {
         suck.whileHeld(new Suck());
         ascend.whileHeld(new Ascend());
         descend.whileHeld(new Descend());
+        toggleClaw.whenPressed(new ToggleClaw());
     }
 
     public double getDriveX() {

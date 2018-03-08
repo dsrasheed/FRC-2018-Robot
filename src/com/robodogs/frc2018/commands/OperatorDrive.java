@@ -29,7 +29,7 @@ public class OperatorDrive extends Command {
     }
 
     protected void end() {
-        Robot.drive.setSpeed(Drive.DriveSignal.STOP);
+        Robot.drive.set(Drive.DriveSignal.STOP);
     }
 
     protected void interrupted() {
