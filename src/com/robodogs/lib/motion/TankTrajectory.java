@@ -13,8 +13,8 @@ public class TankTrajectory {
 
     public TankTrajectory(String trajectoryName) {
         // TODO: Let SmartDashboard know if cannot get path files
-        File left = Paths.get(trajectoryName, "left.path").toFile();
-        File right = Paths.get(trajectoryName, "right.path").toFile();
+        File left = Paths.get(trajectoryName, "left.txt").toFile();
+        File right = Paths.get(trajectoryName, "right.txt").toFile();
 
         leftTraj = Pathfinder.readFromFile(left);
         rightTraj = Pathfinder.readFromFile(right);

@@ -24,6 +24,8 @@ import com.robodogs.frc2018.DriveHelper;
 // to apply operations to all the motors, just reduce all 
 // this stupid repeat code
 // DO it after competiton so you don't break anything
+// TODO: Wherever ControlMode.PercentOutput is present, 
+// it can be replaced with ControlMode.Velocity
 public class Drive extends Subsystem {
 
     private TalonSRX frontLeft;
@@ -122,6 +124,11 @@ public class Drive extends Subsystem {
         rearRight.config_kI(0, Constants.Drive.kRearRightI, Constants.Drive.kTimeout);
         rearRight.config_kD(0, Constants.Drive.kRearRightD, Constants.Drive.kTimeout);
         rearRight.config_kF(0, Constants.Drive.kRearRightF, Constants.Drive.kTimeout);
+        
+        frontLeft.changeMotionControlFramePeriod((int) (Constants.Drive.kLoopPeriod * 1000));
+        frontRight.changeMotionControlFramePeriod((int) (Constants.Drive.kLoopPeriod * 1000));
+        rearLeft.changeMotionControlFramePeriod((int) (Constants.Drive.kLoopPeriod * 1000));
+        rearRight.changeMotionControlFramePeriod((int) (Constants.Drive.kLoopPeriod * 1000));
         
         controlMode = ControlMode.PercentOutput;
         
@@ -223,24 +230,27 @@ public class Drive extends Subsystem {
     });
     
     public void startFollowing(TrajectoryPoint[] left, TrajectoryPoint[] right) {
-        fill(left, right);
-        
         // stop drive base
         controlMode = ControlMode.MotionProfile;
         set(new DriveSignal(SetValueMotionProfile.Disable.value));
         
-        // initialize control state
+        // fill up talons with points
+        fill(left, right);
+        
+        // reset control state
         following = true;
         filled = false;
         loopTimeout = Constants.Drive.kNumLoopsTimeout;
         
         // start processing profiles
         profileLoop.startPeriodic(Constants.Drive.kLoopPeriod);
+        
+        System.out.println("START motion profile!");
     }
     
     public void motionControl() {
         if (loopTimeout == 0)
-            System.out.println("Talon SRX timedout during motion control loop!");
+            System.out.println("Talon SRX TIMEDOUT during motion control loop!");
         else if (loopTimeout != -1)
             --loopTimeout;
         
@@ -249,7 +259,6 @@ public class Drive extends Subsystem {
         rearLeft.getMotionProfileStatus(rlStatus);
         rearRight.getMotionProfileStatus(rrStatus);
         
-        if (controlMode == ControlMode.MotionProfile)
         if (!filled) {
             if (flStatus.btmBufferCnt >= Constants.Drive.kMinPointsInTalon &&
                 frStatus.btmBufferCnt >= Constants.Drive.kMinPointsInTalon &&
@@ -259,6 +268,8 @@ public class Drive extends Subsystem {
                 set(new DriveSignal(SetValueMotionProfile.Enable.value));
                 loopTimeout = Constants.Drive.kNumLoopsTimeout;
                 filled = true;
+                
+                System.out.println("BOTTOM BUFFER FILLED WITH MIN!");
             }
         } 
         else {
@@ -267,12 +278,14 @@ public class Drive extends Subsystem {
                 rlStatus.isUnderrun == false &&
                 rrStatus.isUnderrun == false)
                     loopTimeout = Constants.Drive.kNumLoopsTimeout;
+            else
+                System.out.println("A talon has UNDERRUNNED!");
             
             if (flStatus.activePointValid && flStatus.isLast &&
                 frStatus.activePointValid && frStatus.isLast &&
                 rlStatus.activePointValid && rlStatus.isLast &&
                 rrStatus.activePointValid && rrStatus.isLast) {
-                
+                System.out.println("COMPLETED motion profile!");
                 set(new DriveSignal(SetValueMotionProfile.Hold.value));
                 following = false;
             }
@@ -280,10 +293,22 @@ public class Drive extends Subsystem {
     }
     
     private void fill(TrajectoryPoint[] left, TrajectoryPoint[] right) {
+        // Empty bottom buffer
         frontLeft.clearMotionProfileTrajectories();
         frontRight.clearMotionProfileTrajectories();
         rearLeft.clearMotionProfileTrajectories();
         rearRight.clearMotionProfileTrajectories();
+        
+        // Clear underrun flag so new ones can be detected
+        frontLeft.clearMotionProfileHasUnderrun(0);
+        frontRight.clearMotionProfileHasUnderrun(0);
+        rearLeft.clearMotionProfileHasUnderrun(0);
+        rearRight.clearMotionProfileHasUnderrun(0);
+        
+        frontLeft.configMotionProfileTrajectoryPeriod(0,0);
+        frontRight.configMotionProfileTrajectoryPeriod(0,0);
+        rearLeft.configMotionProfileTrajectoryPeriod(0,0);
+        rearRight.configMotionProfileTrajectoryPeriod(0,0);
         
         int totalCnt = left.length;
         for (int i = 0; i < totalCnt; i++) {
@@ -299,9 +324,19 @@ public class Drive extends Subsystem {
     }
     
     public void stopFollowing() {
+        // reset to give control back to operator
         set(new DriveSignal(SetValueMotionProfile.Disable.value));
+        controlMode = ControlMode.PercentOutput;
+
         profileLoop.stop();
+        
+        // If the motion profile is abruptly ended, this state won't
+        // be set to false by the motionControl method
+        following = false;
+        
+        System.out.println("STOP motion profile");
     }
+    
     
     private double maxFLVel = 0.0;
     private double maxFRVel = 0.0;

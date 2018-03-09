@@ -9,6 +9,7 @@ package com.robodogs.frc2018;
 
 import java.io.File;
 import java.net.URL;
+import java.nio.file.Paths;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Command;
@@ -19,15 +20,13 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.SPI;
 
-import com.robodogs.lib.motion.TankTrajectory;
 import com.robodogs.frc2018.commands.FollowPath;
+import com.robodogs.lib.motion.TrajectoryDeserializer;
+import com.ctre.phoenix.motion.TrajectoryPoint;
 
 import com.robodogs.frc2018.subsystems.Drive;
 import com.robodogs.frc2018.subsystems.Arm;
 import com.robodogs.frc2018.subsystems.Claw;
-
-import com.robodogs.lib.util.ControllerMap;
-import com.robodogs.frc2018.DriveHelper;
 
 import com.kauailabs.navx.frc.AHRS;
 
@@ -72,8 +71,7 @@ public class Robot extends TimedRobot {
         if (auto != null) {
             if (auto.getClass().equals(FollowPath.class)) {
                 String name = trajectoryChooser.getSelected();
-                TankTrajectory trajectory = new TankTrajectory(name);
-                ((FollowPath) auto).setTrajectory(trajectory);	
+                ((FollowPath) auto).setTrajectory(name);
             }
             auto.start();
         }
