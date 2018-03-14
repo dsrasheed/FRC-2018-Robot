@@ -1,8 +1,7 @@
 package com.robodogs.lib.motion;
 
 import java.util.Scanner;
-import java.io.IOException;
-import java.io.File;
+import java.io.InputStream;
 
 import com.ctre.phoenix.motion.TrajectoryPoint;
 import com.ctre.phoenix.motion.TrajectoryPoint.TrajectoryDuration;
@@ -10,23 +9,23 @@ import com.ctre.phoenix.motion.TrajectoryPoint.TrajectoryDuration;
 import edu.wpi.first.wpilibj.DriverStation;
 
 
-public class TrajectoryDeserializer {
+public class MyTrajectoryDeserializer {
     
-    File file;
+    InputStream is;
     
-    public TrajectoryDeserializer(String filename) {
-        this(new File(filename));
+    public MyTrajectoryDeserializer(String path) {
+        this.is = getClass().getResourceAsStream(path);
     }
     
-    public TrajectoryDeserializer(File file) {
-        this.file = file;
+    public MyTrajectoryDeserializer(InputStream is) {
+        this.is = is;
     }
     
     public TrajectoryPoint[] deserialize(double posConversion, double velConversion) {
         TrajectoryPoint[] points = null;
         Scanner sc = null;
         try {
-            sc = new Scanner(file);
+            sc = new Scanner(is);
             int cnt = sc.nextInt();
         
             // next token is a blank line, so skip it
@@ -35,6 +34,11 @@ public class TrajectoryDeserializer {
             points = new TrajectoryPoint[cnt];
             for (int i = 0; i < cnt; i++) {
                 String[] items = sc.nextLine().split(",");
+                
+                // i don't know if new line will mess it up
+                if (items == null)
+                    break;
+                
                 TrajectoryPoint point = new TrajectoryPoint();
             
                 point.timeDur = TrajectoryDuration.Trajectory_Duration_10ms;

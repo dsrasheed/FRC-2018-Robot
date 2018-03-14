@@ -17,10 +17,10 @@ public class Claw extends Subsystem {
     private TalonSRX slave;
     private DigitalInput limit;
     
-    private Solenoid forward1;
-    private Solenoid forward2;
-    private Solenoid reverse1;
-    private Solenoid reverse2;
+    private Solenoid forwardLeft;
+    private Solenoid reverseLeft;
+    private Solenoid forwardRight;
+    private Solenoid reverseRight;
     
     private boolean isLifted;
 
@@ -41,22 +41,21 @@ public class Claw extends Subsystem {
         slave.setNeutralMode(NeutralMode.Brake);
         
         slave.set(ControlMode.Follower, Constants.Claw.kMasterCANID);
-        
-        limit = new DigitalInput(Constants.Claw.kLimitPort);
-        
-        forward1 = new Solenoid(Constants.Claw.kForwardPort1);
-        forward2 = new Solenoid(Constants.Claw.kForwardPort2);
-        reverse1 = new Solenoid(Constants.Claw.kReversePort1);
-        reverse2 = new Solenoid(Constants.Claw.kReversePort2);
+                
+        forwardLeft = new Solenoid(Constants.Claw.kLeftForwardPort);
+        reverseLeft = new Solenoid(Constants.Claw.kLeftReversePort);
+        forwardRight = new Solenoid(Constants.Claw.kRightForwardPort);
+        reverseRight = new Solenoid(Constants.Claw.kRightReversePort);
     }
     
     public void suck() {
-        if (!hasCube())
-            master.set(ControlMode.PercentOutput, 1.0);
+        if (!hasCube()) {
+            master.set(ControlMode.PercentOutput, -1.0);
+        }
     }
     
     public void spit() {
-        master.set(ControlMode.PercentOutput,  -1.0);
+        master.set(ControlMode.PercentOutput, 1.0);
     }
     
     public void stop() {
@@ -64,19 +63,19 @@ public class Claw extends Subsystem {
     }
     
     public void lift() {
-        forward1.set(true);
-        forward2.set(true);
-        reverse1.set(false);
-        reverse1.set(false);
+        reverseLeft.set(true);
+        reverseRight.set(true);
+        forwardLeft.set(false);
+        forwardRight.set(false);
         
         isLifted = true;
     }
     
     public void lower() {
-        forward1.set(false);
-        forward2.set(false);
-        reverse1.set(true);
-        reverse2.set(true);
+        reverseLeft.set(false);
+        reverseRight.set(false);
+        forwardLeft.set(true);
+        forwardRight.set(true);
         
         isLifted = false;
     }

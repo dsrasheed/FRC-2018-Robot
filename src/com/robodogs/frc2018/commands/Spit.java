@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.command.Command;
 import com.robodogs.frc2018.Robot;
 
 public class Spit extends Command {
-
+   
     public Spit() {
         requires(Robot.claw);
     }

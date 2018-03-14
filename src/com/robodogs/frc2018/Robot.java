@@ -19,14 +19,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.CameraServer;
 
-import com.robodogs.frc2018.commands.FollowPath;
-import com.robodogs.lib.motion.TrajectoryDeserializer;
-import com.ctre.phoenix.motion.TrajectoryPoint;
-
-import com.robodogs.frc2018.subsystems.Drive;
-import com.robodogs.frc2018.subsystems.Arm;
-import com.robodogs.frc2018.subsystems.Claw;
+import com.robodogs.frc2018.subsystems.*;
+import com.robodogs.frc2018.commands.*;
 
 import com.kauailabs.navx.frc.AHRS;
 
@@ -37,9 +33,14 @@ public class Robot extends TimedRobot {
     public static Arm arm;
     public static Claw claw;
     public static AHRS gyro;
+    public static Climber climber;
     public static ControlBoard cb;
 
+    // For Competition
     private SendableChooser<Command> autoChooser;
+    private SendableChooser<String> botPosChooser;
+    
+    // For Testing
     private SendableChooser<String> trajectoryChooser;
     private Notifier debugLoop;
 
@@ -69,9 +70,17 @@ public class Robot extends TimedRobot {
         Command auto = autoChooser.getSelected();
 
         if (auto != null) {
-            if (auto.getClass().equals(FollowPath.class)) {
+            if (auto instanceof FollowPath) {
                 String name = trajectoryChooser.getSelected();
+                System.out.println("Hreloo");
                 ((FollowPath) auto).setTrajectory(name);
+            }
+            else if (auto instanceof PlaceCubeOnSwitch) {
+                PlaceCubeOnSwitch placeAuto = (PlaceCubeOnSwitch) auto;
+                String botPos = botPosChooser.getSelected();
+                char switchPos = DriverStation.getInstance().getGameSpecificMessage().charAt(0);
+                String name = placeAuto.getMotionProfileName(botPos, switchPos);
+                placeAuto.setProfile(name);
             }
             auto.start();
         }
@@ -87,9 +96,9 @@ public class Robot extends TimedRobot {
         /* No need to cancel, wait for autonomous to complete
          * if the drivers want to do something else, the moment
          * they start using that subsystem, the auto will cancel.
-		if (m_autonomousCommand != null) {
-			m_autonomousCommand.cancel();
-		}*/
+        if (m_autonomousCommand != null) {
+            m_autonomousCommand.cancel();
+        }*/
     }
 
     @Override
@@ -110,6 +119,7 @@ public class Robot extends TimedRobot {
         drive = new Drive();
         arm = new Arm();
         claw = new Claw();
+        climber = new Climber();
     }
 
     public void setupDriverStation() {
@@ -119,20 +129,21 @@ public class Robot extends TimedRobot {
         // Choosers
         autoChooser = new SendableChooser<>();
         autoChooser.addDefault("Do Nothing", null);
-        autoChooser.addObject("Follow a Trajectory", new FollowPath());
+        autoChooser.addObject("Drive Past Line", new DrivePastLine());
+        autoChooser.addObject("Follow a Trajectory - Do not pick", new FollowPath());
+        autoChooser.addObject("Place Cube on Switch", new PlaceCubeOnSwitch());
+        
+        botPosChooser = new SendableChooser<>();
+        botPosChooser.addDefault("Middle", PlaceCubeOnSwitch.MIDDLE);
+        botPosChooser.addObject("Left", PlaceCubeOnSwitch.LEFT);
+        botPosChooser.addObject("Right", PlaceCubeOnSwitch.RIGHT);
 
         trajectoryChooser = new SendableChooser<>();
-        URL trajURL = Robot.class.getResource(Constants.Drive.kTrajectoriesDirName);
-        SmartDashboard.putBoolean("Trajectories Directory Found", trajURL != null);
-
-        if (trajURL != null) {
-            File trajectories = new File(trajURL.toExternalForm());
-            for (String name : trajectories.list())
-                trajectoryChooser.addObject(name, name);
-        }
-
+        trajectoryChooser.addObject("Pass Line", "PassLine"); 
+        
         SmartDashboard.putData("Auto mode", autoChooser);
         SmartDashboard.putData("Auto Trajectory", trajectoryChooser);
+        SmartDashboard.putData("Robot Position", botPosChooser);
 
         // Subsystem debugging
         // Extend Loop with interface DebugLoop, create default (with default keyboard) method onLoop that calls outputToSmartDashboard,
@@ -152,5 +163,8 @@ public class Robot extends TimedRobot {
             SmartDashboard.putNumber("Gyro Yaw", gyro.getYaw());
         });
         debugLoop.startPeriodic(0.25);
+        
+        // Cameras
+        CameraServer.getInstance().startAutomaticCapture();
     }
 }

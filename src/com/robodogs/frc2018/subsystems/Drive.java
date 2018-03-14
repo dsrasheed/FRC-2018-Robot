@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.Timer;
 
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -15,6 +16,8 @@ import com.ctre.phoenix.motion.MotionProfileStatus;
 
 import com.robodogs.lib.util.PIDTuner;
 import com.robodogs.lib.util.PIDTunable;
+import com.robodogs.lib.util.ControllerMap;
+
 import com.robodogs.frc2018.Constants;
 import com.robodogs.frc2018.Robot;
 import com.robodogs.frc2018.DriveHelper;
@@ -124,7 +127,7 @@ public class Drive extends Subsystem {
         rearRight.config_kI(0, Constants.Drive.kRearRightI, Constants.Drive.kTimeout);
         rearRight.config_kD(0, Constants.Drive.kRearRightD, Constants.Drive.kTimeout);
         rearRight.config_kF(0, Constants.Drive.kRearRightF, Constants.Drive.kTimeout);
-        
+                
         frontLeft.changeMotionControlFramePeriod((int) (Constants.Drive.kLoopPeriod * 1000));
         frontRight.changeMotionControlFramePeriod((int) (Constants.Drive.kLoopPeriod * 1000));
         rearLeft.changeMotionControlFramePeriod((int) (Constants.Drive.kLoopPeriod * 1000));
@@ -135,8 +138,6 @@ public class Drive extends Subsystem {
         headingCtrl = new PIDController(0.0, 0.0, 0.0, Robot.gyro, (double out) -> {
             rotation = out;
         });
-        
-        set(DriveSignal.STOP);
     }
     
     public static enum MotorType {
@@ -191,10 +192,18 @@ public class Drive extends Subsystem {
         // double gyroAngle = Robot.gyro.getYaw();
 
         double[] wheelSpeeds = new double[4];
+        /*
         wheelSpeeds[Drive.MotorType.kFrontLeft.value] = y - x + rot;
         wheelSpeeds[Drive.MotorType.kFrontRight.value] = y + x - rot;
         wheelSpeeds[Drive.MotorType.kRearLeft.value] = y + x + rot;
         wheelSpeeds[Drive.MotorType.kRearRight.value] = y - x - rot;
+        */
+        
+        /* X */
+        wheelSpeeds[Drive.MotorType.kFrontLeft.value] = y + x + rot;
+        wheelSpeeds[Drive.MotorType.kFrontRight.value] = y - x - rot;
+        wheelSpeeds[Drive.MotorType.kRearLeft.value] = y - x + rot;
+        wheelSpeeds[Drive.MotorType.kRearRight.value] = y + x - rot;
         DriveHelper.normalize(wheelSpeeds);
         
         if (frontLeft.getControlMode() == ControlMode.Velocity) {
@@ -337,38 +346,45 @@ public class Drive extends Subsystem {
         System.out.println("STOP motion profile");
     }
     
-    
+    // Debugging
     private double maxFLVel = 0.0;
     private double maxFRVel = 0.0;
     private double maxRLVel = 0.0;
     private double maxRRVel = 0.0;
-
+    
+    private static final double kPeriod = 30.0;
+    private double startTime = Timer.getFPGATimestamp();
+    
     public void outputToSmartDashboard() {
+        /*
         // Position
         SmartDashboard.putNumber("Front Left Position (ticks)", frontLeft.getSelectedSensorPosition(0));
         SmartDashboard.putNumber("Front Right Position (ticks)", frontRight.getSelectedSensorPosition(0));
         SmartDashboard.putNumber("Rear Left Position (ticks)", rearLeft.getSelectedSensorPosition(0));
         SmartDashboard.putNumber("Rear Right Position (ticks)", rearRight.getSelectedSensorPosition(0));
-
+        */
+        
         // Velocity
         double flVel = frontLeft.getSelectedSensorVelocity(0);
         double frVel = frontRight.getSelectedSensorVelocity(0);
         double rlVel = rearLeft.getSelectedSensorVelocity(0);
         double rrVel = rearRight.getSelectedSensorVelocity(0);
-        SmartDashboard.putNumber("Front Left Velocity (ticks/100ms)", flVel);
-        SmartDashboard.putNumber("Front Right Velocity (ticks/100ms)", frVel);
-        SmartDashboard.putNumber("Rear Left Velocity (ticks/100ms)", rlVel);
-        SmartDashboard.putNumber("Rear Right Velocity (ticks/100ms)", rrVel);
-
-        // Max velocity
-        SmartDashboard.putNumber("Front Left Highest Velocity (ticks/100ms)", 
-                (maxFLVel = (flVel > maxFLVel ? flVel : maxFLVel)));
-        SmartDashboard.putNumber("Front Right Highest Velocity (ticks/100ms)", 
-                (maxFRVel = (frVel > maxFRVel ? frVel : maxFRVel)));
-        SmartDashboard.putNumber("Rear Left Highest Velocity (ticks/100ms)", 
-                (maxRLVel = (rlVel > maxRLVel ? rlVel : maxRLVel)));
-        SmartDashboard.putNumber("Rear Right Highest Velocity (ticks/100ms)", 
-                (maxRRVel = (rrVel > maxRRVel ? rrVel : maxRRVel)));
+        
+        maxFLVel = flVel > maxFLVel ? flVel : maxFLVel;
+        maxFRVel = frVel > maxFRVel ? frVel : maxFRVel;
+        maxRLVel = rlVel > maxRLVel ? rlVel : maxRLVel;
+        maxRRVel = rrVel > maxRRVel ? rrVel : maxRRVel;
+        
+        double currTime = Timer.getFPGATimestamp();
+        if (currTime - startTime >= kPeriod) {
+            System.out.format("MAX_FL: %.2f, MAX_FR: %.2f, MAX_RL: %.2f, MAX_RR: %.2f%n",
+                    maxFLVel, maxFRVel, maxRLVel, maxRRVel);
+            maxFLVel = 0.0;
+            maxFRVel = 0.0;
+            maxRLVel = 0.0;
+            maxRRVel = 0.0;
+            startTime = currTime;
+        }
     }
 
     public void initDefaultCommand() {}

@@ -117,7 +117,7 @@
       <fileset dir="${src.dir}"
                includes="**/*.java" />
       <fileset dir="res"
-			   includes="**/*.path"  />
+               includes="**/*.txt"  />
       <zipgroupfileset dir="${build.jars}" />
     </jar>
   </target>

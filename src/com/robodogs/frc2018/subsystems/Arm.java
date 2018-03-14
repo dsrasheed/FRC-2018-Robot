@@ -17,10 +17,11 @@ public class Arm extends Subsystem {
     
     private TalonSRX master;
     private TalonSRX slave;
-    private DigitalInput limit;
+    private DigitalInput descendStop1;
+    private DigitalInput descendStop2;
+    private DigitalInput ascendStop1;
+    private DigitalInput ascendStop2;
     
-    private Encoder enc;
-
     public Arm() {
         master = new TalonSRX(Constants.Arm.kMasterCANID);
         slave = new TalonSRX(Constants.Arm.kSlaveCANID);
@@ -31,9 +32,9 @@ public class Arm extends Subsystem {
         slave.configPeakCurrentLimit(0, 0);
         master.configPeakCurrentDuration(0, 0);
         slave.configPeakCurrentDuration(0, 0);
-        // master.enableCurrentLimit(true);
-        // slave.enableCurrentLimit(true);
-
+        master.enableCurrentLimit(true);
+        slave.enableCurrentLimit(true);
+        
         master.configOpenloopRamp(1.0, 0);
         
         master.setNeutralMode(NeutralMode.Brake);
@@ -42,15 +43,15 @@ public class Arm extends Subsystem {
         slave.setInverted(true);
         slave.set(ControlMode.Follower, Constants.Arm.kMasterCANID);
         
-        // enc = new Encoder(0, 1, false, Encoder.EncodingType.k1X);
-        // enc.setDistancePerPulse(1.0);
-        
-        limit = new DigitalInput(Constants.Arm.kLimitPort);
+        descendStop1 = new DigitalInput(Constants.Arm.kDescendStop1Port);
+        ascendStop1 = new DigitalInput(Constants.Arm.kAscendStop1Port);
+        ascendStop2 = new DigitalInput(Constants.Arm.kAscendingStop2Port);
     }
     
     public void ascend() {
-        if (canContinueAscend())
+        if (canAscend()) {
             master.set(ControlMode.PercentOutput, 0.75);
+        }
     }
     
     public void stop() {
@@ -58,30 +59,27 @@ public class Arm extends Subsystem {
     }
     
     public void descend() {
-        if (canContinueDescend())
+        if (canDescend()) {
             master.set(ControlMode.PercentOutput, -0.75);
-        // else
-            // enc.reset();
+        }
     }
     
-    // combine into single function, can continue.
-    public boolean canContinueDescend() {
-        // return limit.get();
-        return true;
+    public boolean canDescend() {
+        return descendStop1.get() == true;
+        // || descendStop2.get() != true
     }
     
-    // change to isPastLimit
-    public boolean canContinueAscend() {
-        // return enc.get() < 100;
-        return true;
+    public boolean canAscend() {
+        return ascendStop1.get() == true || ascendStop2.get() == true;
     }
     
     public void outputToSmartDashboard() {
-        // SmartDashboard.putNumber("Positio of Arm", enc.get());
-        // SmartDashboard.putNumber("Rate of Arm", enc.getRate());
+        SmartDashboard.putBoolean("Can The Arm Descend", canDescend());
+        SmartDashboard.putBoolean("Can the Arm Ascend", canAscend());
     }
-     
+    
     public void initDefaultCommand() {
         
     }
 }
+

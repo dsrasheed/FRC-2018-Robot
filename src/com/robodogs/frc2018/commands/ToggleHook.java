@@ -6,27 +6,29 @@ import com.robodogs.frc2018.Robot;
 /**
  *
  */
-public class Descend extends Command {
-    
-    public Descend() {
-        requires(Robot.arm);
+public class ToggleHook extends Command {
+
+    public ToggleHook() {
+        requires(Robot.climber);
     }
-    
+
     protected void initialize() {
-        Robot.arm.descend();
+        if (Robot.climber.isExtended())
+            Robot.climber.retract();
+        else
+            Robot.climber.extend();
     }
-    
+
     protected void execute() {
     }
-    
+
     protected boolean isFinished() {
-        return !Robot.arm.canDescend();
+        return true;
     }
-    
+
     protected void end() {
-        Robot.arm.stop();
     }
-    
+
     protected void interrupted() {
         end();
     }
