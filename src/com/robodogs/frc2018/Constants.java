@@ -26,7 +26,7 @@ public class Constants {
         /* MOTION PROFILING */
         public static final int kEncCodesPerRev = 960;
         public static final double kLoopPeriod = 0.005;
-        public static final int kMinPointsInTalon = 100;
+        public static final int kMinPointsInTalon = 25;
         public static final int kNumLoopsTimeout = 10;
 
         public static final String kTrajectoriesDirName = "/trajectories";

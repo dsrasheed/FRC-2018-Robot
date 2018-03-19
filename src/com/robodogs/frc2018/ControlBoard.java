@@ -27,27 +27,24 @@ public class ControlBoard {
         JoystickButton driveSafety = new JoystickButton(driveStick, ControllerMap.RB),
             spit = new JoystickButton(mechStick, ControllerMap.LB),
             suck = new JoystickButton(mechStick, ControllerMap.RB),
-            ascend = new JoystickButton(mechStick, ControllerMap.Y),
-            descend = new JoystickButton(mechStick, ControllerMap.A),
             toggleClaw = new JoystickButton(mechStick, ControllerMap.B),
             toggleHook = new JoystickButton(mechStick, ControllerMap.leftJoyButton);
         
-        AxisButton wind = new AxisButton(mechStick, ControllerMap.leftJoyYAxis, 0.8);
-        AxisButton unwind = new AxisButton(mechStick, ControllerMap.leftJoyYAxis, -0.8);
-        
-        JoystickButton unwindDrive = new JoystickButton(driveStick, ControllerMap.Start);
-        
+        AxisButton ascend = new AxisButton(mechStick, ControllerMap.rightJoyYAxis, 0.8),
+            descend = new AxisButton(mechStick, ControllerMap.rightJoyYAxis, -0.8),
+            wind = new AxisButton(mechStick, ControllerMap.leftJoyYAxis, 0.8),
+            unwind = new AxisButton(mechStick, ControllerMap.leftJoyYAxis, -0.8);
         
         driveSafety.whileHeld(new OperatorDrive());
         spit.whileHeld(new Spit());
         suck.whileHeld(new Suck());
-        ascend.whileHeld(new Ascend());
-        descend.whileHeld(new Descend());
         toggleClaw.whenPressed(new ToggleClaw());
+        toggleHook.whenPressed(new ToggleHook());
+        
+        ascend.whileActive(new Ascend());
+        descend.whileActive(new Descend());
         wind.whileActive(new Wind());
         unwind.whileActive(new Unwind());
-        unwindDrive.whileHeld(new Unwind());
-        toggleHook.whenPressed(new ToggleHook());
     }
     
     public double getDriveX() {
@@ -60,10 +57,6 @@ public class ControlBoard {
     
     public double getDriveTwist() {
         return driveStick.getRawAxis(ControllerMap.rightJoyXAxis);
-    }
-    
-    public boolean gyroResetPressed() {
-        return driveStick.getRawButtonReleased(ControllerMap.Back);
     }
 }
 

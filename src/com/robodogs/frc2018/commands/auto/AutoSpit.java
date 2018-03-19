@@ -1,6 +1,7 @@
-package com.robodogs.frc2018.commands;
+package com.robodogs.frc2018.commands.auto;
 
 import edu.wpi.first.wpilibj.Timer;
+import com.robodogs.frc2018.commands.Spit;
 
 public class AutoSpit extends Spit {
     

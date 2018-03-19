@@ -1,4 +1,4 @@
-package com.robodogs.frc2018.commands;
+package com.robodogs.frc2018.commands.auto;
 
 import java.io.File;
 import java.nio.file.Paths;

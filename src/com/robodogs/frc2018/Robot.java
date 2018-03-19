@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.CameraServer;
 
 import com.robodogs.frc2018.subsystems.*;
 import com.robodogs.frc2018.commands.*;
+import com.robodogs.frc2018.commands.auto.*;
 
 import com.kauailabs.navx.frc.AHRS;
 
@@ -32,7 +33,7 @@ public class Robot extends TimedRobot {
     public static Drive drive;
     public static Arm arm;
     public static Claw claw;
-    public static AHRS gyro;
+    public static Gyro gyro;
     public static Climber climber;
     public static ControlBoard cb;
 
@@ -46,11 +47,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotInit() {
-        try {
-            gyro = new AHRS(SPI.Port.kMXP);
-        } catch (RuntimeException ex) {
-            DriverStation.reportError("Error setting up navx: " + ex.getMessage(), true);
-        }
         initSubsystems();
         setupDriverStation();
     }
@@ -104,9 +100,6 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
         Scheduler.getInstance().run();
-
-        if (cb.gyroResetPressed())
-            gyro.reset();
     }
 
 
@@ -116,6 +109,7 @@ public class Robot extends TimedRobot {
     }
     
     public void initSubsystems() {
+        gyro = new Gyro();
         drive = new Drive();
         arm = new Arm();
         claw = new Claw();
@@ -152,15 +146,7 @@ public class Robot extends TimedRobot {
         debugLoop = new Notifier(() -> {
             drive.outputToSmartDashboard();
             arm.outputToSmartDashboard();
-
-            // Debug Gyro
-            SmartDashboard.putBoolean("Gyro Is Calibrating", gyro.isCalibrating());
-            SmartDashboard.putBoolean("Gyro Is Connected", gyro.isConnected());
-            SmartDashboard.putNumber("Gyro Byte Count", gyro.getByteCount());
-            SmartDashboard.putNumber("Gyro Update Count", gyro.getUpdateCount());
-
-            SmartDashboard.putNumber("Gyro Angle: ", gyro.getAngle());
-            SmartDashboard.putNumber("Gyro Yaw", gyro.getYaw());
+            gyro.outputToSmartDashboard();
         });
         debugLoop.startPeriodic(0.25);
         

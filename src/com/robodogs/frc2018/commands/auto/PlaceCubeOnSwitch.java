@@ -1,4 +1,4 @@
-package com.robodogs.frc2018.commands;
+package com.robodogs.frc2018.commands.auto;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import com.robodogs.frc2018.commands.FollowPath;

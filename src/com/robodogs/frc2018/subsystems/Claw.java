@@ -15,7 +15,6 @@ public class Claw extends Subsystem {
     
     private TalonSRX master;
     private TalonSRX slave;
-    private DigitalInput limit;
     
     private Solenoid forwardLeft;
     private Solenoid reverseLeft;
