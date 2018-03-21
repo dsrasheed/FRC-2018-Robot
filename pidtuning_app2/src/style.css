@@ -1,0 +1,39 @@
+.root {
+    -fx-background-color: white;
+}
+
+#side-bar {
+    -fx-border-left-width: "1px";
+    -fx-border-color: lightgray;
+    -fx-background-color: rgb(80, 0, 255);
+}
+
+.side-bar-section {
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: gray;
+}
+
+#tuner-name-text, #setpoint-text {
+    -fx-font: 20px Lato;
+    -fx-fill: rgb(230,230,230);;
+}
+
+.label, .text-field, .button {
+    -fx-font-family: "Lato";
+    -fx-font-size: 20px;
+    -fx-text-fill: rgb(230,230,230);
+}
+
+.text-field {
+    -fx-border-width: 0;
+    -fx-background-color: "hsl(259, 80%, 100%)";
+}
+
+.button {
+    -fx-background-color: "hsl(259, 100%, 70%)";
+    -fx-border-radius: 0;
+}
+
+.button:pressed {
+    -fx-background-color: "hsl(259, 100%, 60%)";
+}

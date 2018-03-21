@@ -21,11 +21,14 @@ public class Gyro extends Subsystem implements PIDSource {
         }
     }
     
+    public double getAngle() {
+        return ahrs.getAngle();
+    }
+    
     public void reset() {
         ahrs.reset();
     }
     
-
     public double pidGet() {
         return ahrs.getAngle();
     }

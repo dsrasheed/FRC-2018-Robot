@@ -16,13 +16,13 @@ public class AxisButton extends Trigger {
     }
 
     public boolean get() {
-        boolean active = false;
-        if (threshold < 0)
+        if (threshold < 0) {
             if (stick.getRawAxis(axis) <= threshold)
-                active = true;
-        else
+                return true;
+        } else {
             if (stick.getRawAxis(axis) >= threshold)
-                active = true;
-        return active;
+                return true;
+        }
+        return false;
     }
 }

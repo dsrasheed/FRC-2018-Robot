@@ -7,9 +7,6 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import com.robodogs.frc2018.Constants;
 import com.robodogs.frc2018.Robot;
 
-/**
- *
- */
 public class Climber extends Subsystem {
     
     private DoubleSolenoid extender;

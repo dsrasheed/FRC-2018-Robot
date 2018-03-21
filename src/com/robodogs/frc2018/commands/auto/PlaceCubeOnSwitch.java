@@ -1,8 +1,8 @@
 package com.robodogs.frc2018.commands.auto;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
-import com.robodogs.frc2018.commands.FollowPath;
-import com.robodogs.frc2018.commands.AutoSpit;
+import com.robodogs.frc2018.commands.auto.FollowPath;
+import com.robodogs.frc2018.commands.auto.AutoSpit;
 
 
 public class PlaceCubeOnSwitch extends CommandGroup {

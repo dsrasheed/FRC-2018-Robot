@@ -40,7 +40,7 @@ public class Drive extends Subsystem {
     private PIDController headingCtrl;
     double rotation = 0.0;
     
-    private PIDTuner speedTuner = new PIDTuner(new PIDTunable() {
+    /*private PIDTuner speedTuner = new PIDTuner(new PIDTunable() {
         double setpoint;
         
         @Override
@@ -82,7 +82,7 @@ public class Drive extends Subsystem {
             controlMode = ControlMode.PercentOutput;
             // setSpeed(DriveSignal.STOP);
         }
-    }, "drivebase_speed", Constants.Drive.kFrontLeftP, Constants.Drive.kFrontLeftI, Constants.Drive.kFrontLeftD);
+    }, "drivebase_speed", Constants.Drive.kFrontLeftP, Constants.Drive.kFrontLeftI, Constants.Drive.kFrontLeftD);*/
 
     public Drive() {
         frontLeft = new TalonSRX(Constants.Drive.kFrontLeftCANID);
@@ -189,17 +189,8 @@ public class Drive extends Subsystem {
         x = DriveHelper.applyDeadband(x);
         y = DriveHelper.applyDeadband(y);
         rot = DriveHelper.applyDeadband(rot);
-        // double gyroAngle = Robot.gyro.getYaw();
 
         double[] wheelSpeeds = new double[4];
-        /*
-        wheelSpeeds[Drive.MotorType.kFrontLeft.value] = y - x + rot;
-        wheelSpeeds[Drive.MotorType.kFrontRight.value] = y + x - rot;
-        wheelSpeeds[Drive.MotorType.kRearLeft.value] = y + x + rot;
-        wheelSpeeds[Drive.MotorType.kRearRight.value] = y - x - rot;
-        */
-        
-        /* X */
         wheelSpeeds[Drive.MotorType.kFrontLeft.value] = y + x + rot;
         wheelSpeeds[Drive.MotorType.kFrontRight.value] = y - x - rot;
         wheelSpeeds[Drive.MotorType.kRearLeft.value] = y - x + rot;
@@ -355,15 +346,7 @@ public class Drive extends Subsystem {
     private static final double kPeriod = 30.0;
     private double startTime = Timer.getFPGATimestamp();
     
-    public void outputToSmartDashboard() {
-        /*
-        // Position
-        SmartDashboard.putNumber("Front Left Position (ticks)", frontLeft.getSelectedSensorPosition(0));
-        SmartDashboard.putNumber("Front Right Position (ticks)", frontRight.getSelectedSensorPosition(0));
-        SmartDashboard.putNumber("Rear Left Position (ticks)", rearLeft.getSelectedSensorPosition(0));
-        SmartDashboard.putNumber("Rear Right Position (ticks)", rearRight.getSelectedSensorPosition(0));
-        */
-        
+    public void outputToSmartDashboard() {   
         // Velocity
         double flVel = frontLeft.getSelectedSensorVelocity(0);
         double frVel = frontRight.getSelectedSensorVelocity(0);
