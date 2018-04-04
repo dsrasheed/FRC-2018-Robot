@@ -35,7 +35,7 @@ public class Arm extends Subsystem {
         master.enableCurrentLimit(true);
         slave.enableCurrentLimit(true);
         
-        master.configOpenloopRamp(1.0, 0);
+        master.configOpenloopRamp(0.2, 0);
         
         master.setNeutralMode(NeutralMode.Brake);
         slave.setNeutralMode(NeutralMode.Brake);
@@ -44,6 +44,7 @@ public class Arm extends Subsystem {
         slave.set(ControlMode.Follower, Constants.Arm.kMasterCANID);
         
         descendStop1 = new DigitalInput(Constants.Arm.kDescendStop1Port);
+        descendStop2 = new DigitalInput(Constants.Arm.kDescendStop2Port);
         ascendStop1 = new DigitalInput(Constants.Arm.kAscendStop1Port);
         ascendStop2 = new DigitalInput(Constants.Arm.kAscendingStop2Port);
     }
@@ -65,8 +66,7 @@ public class Arm extends Subsystem {
     }
     
     public boolean canDescend() {
-        return descendStop1.get() == true;
-        // || descendStop2.get() != true
+        return descendStop1.get() == true || descendStop2.get() == true;
     }
     
     public boolean canAscend() {

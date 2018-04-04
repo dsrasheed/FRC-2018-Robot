@@ -38,18 +38,20 @@ public class Robot extends TimedRobot {
     public static Climber climber;
     public static ControlBoard cb;
 
-    // For Competition
+    /*// For Competition
     private SendableChooser<Command> autoChooser;
     private SendableChooser<String> botPosChooser;
     
     // For Testing
-    private SendableChooser<String> trajectoryChooser;
+    private SendableChooser<String> trajectoryChooser;*/
+    
+    AutoChooser autoChooser;
     private Notifier debugLoop;
 
     @Override
     public void robotInit() {
         initSubsystems();
-        setupDriverStation();
+        setupSmartDashboard();
     }
 
     @Override
@@ -64,7 +66,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        Command auto = autoChooser.getSelected();
+        /*Command auto = autoChooser.getSelected();
 
         if (auto != null) {
             if (auto instanceof FollowPath) {
@@ -80,7 +82,10 @@ public class Robot extends TimedRobot {
                 placeAuto.setProfile(name);
             }
             auto.start();
-        }
+        }*/
+        Command auto = autoChooser.getAuto();
+        if (auto != null)
+            auto.start();
     }
 
     @Override
@@ -117,12 +122,15 @@ public class Robot extends TimedRobot {
         climber = new Climber();
     }
 
-    public void setupDriverStation() {
+    public void setupSmartDashboard() {
         // Controller input
         cb = new ControlBoard();
 
         // Choosers
-        autoChooser = new SendableChooser<>();
+        autoChooser = new AutoChooser();
+        autoChooser.setupSmartDashboard();
+        
+        /*autoChooser = new SendableChooser<>();
         autoChooser.addDefault("Do Nothing", null);
         autoChooser.addObject("Drive Past Line", new DrivePastLine());
         autoChooser.addObject("Follow a Trajectory - Do not pick", new FollowPath());
@@ -138,7 +146,7 @@ public class Robot extends TimedRobot {
         
         SmartDashboard.putData("Auto mode", autoChooser);
         SmartDashboard.putData("Auto Trajectory", trajectoryChooser);
-        SmartDashboard.putData("Robot Position", botPosChooser);
+        SmartDashboard.putData("Robot Position", botPosChooser);*/
 
         // Subsystem debugging
         // Extend Loop with interface DebugLoop, create default (with default keyboard) method onLoop that calls outputToSmartDashboard,
@@ -148,6 +156,7 @@ public class Robot extends TimedRobot {
             drive.outputToSmartDashboard();
             arm.outputToSmartDashboard();
             gyro.outputToSmartDashboard();
+            claw.outputToSmartDashboard();
         });
         debugLoop.startPeriodic(0.25);
         

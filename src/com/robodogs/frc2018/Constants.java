@@ -59,6 +59,7 @@ public class Constants {
         public static final int kMasterCANID = 5;
         public static final int kSlaveCANID  = 20;
         public static final int kDescendStop1Port = 4;
+        public static final int kDescendStop2Port = 0;
         public static final int kAscendStop1Port = 5;
         public static final int kAscendingStop2Port = 7;
 

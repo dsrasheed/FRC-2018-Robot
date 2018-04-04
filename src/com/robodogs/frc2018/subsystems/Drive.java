@@ -39,50 +39,6 @@ public class Drive extends Subsystem {
     private ControlMode controlMode;
     private PIDController headingCtrl;
     double rotation = 0.0;
-    
-    /*private PIDTuner speedTuner = new PIDTuner(new PIDTunable() {
-        double setpoint;
-        
-        @Override
-        public void onPIDChange(double p, double i, double d) {
-            frontLeft.config_kP(0, p, 0);
-            frontRight.config_kP(0, p, 0);
-            rearLeft.config_kP(0, p, 0);
-            rearRight.config_kP(0, p, 0);
-            
-            frontLeft.config_kI(0, i, 0);
-            frontRight.config_kI(0, i, 0);
-            rearLeft.config_kI(0, i, 0);
-            rearRight.config_kI(0, i, 0);
-            
-            frontLeft.config_kD(0, d, 0);
-            frontRight.config_kD(0, d, 0);
-            rearLeft.config_kD(0, d, 0);
-            rearRight.config_kD(0, d, 0);
-        }
-        @Override
-        public double getError() {
-            System.out.println("Getting Error");
-            return frontLeft.getClosedLoopError(0);
-        }
-        @Override
-        public void setSetpoint(double setpoint) {
-            this.setpoint = setpoint;
-            System.out.println("SETPOINT: " + setpoint);
-        }
-        @Override
-        public void start() {
-            System.out.println("STARTING TO TUNE");
-            controlMode = ControlMode.Velocity;
-            //setSpeed(new DriveSignal(setpoint));
-        }
-        @Override
-        public void stop() {
-            System.out.println("STOPPING TUNING");
-            controlMode = ControlMode.PercentOutput;
-            // setSpeed(DriveSignal.STOP);
-        }
-    }, "drivebase_speed", Constants.Drive.kFrontLeftP, Constants.Drive.kFrontLeftI, Constants.Drive.kFrontLeftD);*/
 
     public Drive() {
         frontLeft = new TalonSRX(Constants.Drive.kFrontLeftCANID);

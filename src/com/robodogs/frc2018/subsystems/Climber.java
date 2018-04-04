@@ -34,11 +34,11 @@ public class Climber extends Subsystem {
     }
     
     public void wind() {
-        winder.set(0.8);
+        winder.set(1.0);
     }
     
     public void unwind() {
-        winder.set(-0.8);
+        winder.set(-1.0);
     }
     
     public void stop() {

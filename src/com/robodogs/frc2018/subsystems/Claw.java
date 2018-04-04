@@ -60,6 +60,10 @@ public class Claw extends Subsystem {
     public void stop() {
         master.set(ControlMode.PercentOutput, 0.0);
     }
+ 
+    public void spit(double value) {
+        master.set(ControlMode.PercentOutput, Math.abs(value));
+    }
     
     public void lift() {
         reverseLeft.set(true);
@@ -90,5 +94,9 @@ public class Claw extends Subsystem {
      
     public void initDefaultCommand() {
         lift();
+    }
+    
+    public void outputToSmartDashboard() {
+        SmartDashboard.putBoolean("Claw In", isLifted);
     }
 }

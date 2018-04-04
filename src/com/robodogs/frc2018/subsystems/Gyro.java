@@ -32,7 +32,6 @@ public class Gyro extends Subsystem implements PIDSource {
     public double pidGet() {
         return ahrs.getAngle();
     }
-    
 
     public PIDSourceType getPIDSourceType() {
         return PIDSourceType.kDisplacement;

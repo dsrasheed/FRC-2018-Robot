@@ -5,7 +5,7 @@
 #side-bar {
     -fx-border-left-width: "1px";
     -fx-border-color: lightgray;
-    -fx-background-color: rgb(80, 0, 255);
+    -fx-background-color: "hsl(279, 100%, 50%)";
 }
 
 .side-bar-section {
@@ -26,14 +26,14 @@
 
 .text-field {
     -fx-border-width: 0;
-    -fx-background-color: "hsl(259, 80%, 100%)";
+    -fx-background-color: "hsl(279, 100%, 90%)";
 }
 
 .button {
-    -fx-background-color: "hsl(259, 100%, 70%)";
+    -fx-background-color: "hsl(279, 100%, 70%)";
     -fx-border-radius: 0;
 }
 
 .button:pressed {
-    -fx-background-color: "hsl(259, 100%, 60%)";
+    -fx-background-color: "hsl(279, 100%, 60%)";
 }

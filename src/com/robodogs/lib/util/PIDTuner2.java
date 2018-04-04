@@ -12,8 +12,8 @@ public class PIDTuner2 {
         
     private static NetworkTable pidTable = NetworkTableInstance.getDefault().getTable("pid_tuning");
     
-    // Used as a prefix for entries in the network table, keeps
-    // entries unique to each PIDTuner instance.
+    // Used as a prefix for entries in the network table,
+    // allows you to keep entries unique to each PIDTuner instance.
     private String name;
     
     // Maintains the current values to determine if

@@ -17,7 +17,7 @@ public class Turn extends Command {
         requires(Robot.drive);
         requires(Robot.gyro);
         
-        ctrller = new PIDController(0.0056,0.0,0.0,Robot.gyro, (double out) -> {
+        ctrller = new PIDController(0.0056,0.0001,0.0,Robot.gyro, (double out) -> {
             Robot.drive.mecanumDrive(0, 0, out);
         });
         ctrller.setContinuous(true);
@@ -31,15 +31,15 @@ public class Turn extends Command {
 
     protected void initialize() {
         // remove later
-        ctrller.setPID(tuner.getP(), tuner.getI(), tuner.getD());
-        ctrller.setSetpoint(tuner.getSetpoint());
+        //ctrller.setPID(tuner.getP(), tuner.getI(), tuner.getD());
+        //ctrller.setSetpoint(tuner.getSetpoint());
         
         tuner.enable();
         ctrller.enable();
     }
 
     protected void execute() {
-        tuner.sendError(ctrller.getError());
+        //tuner.sendError(ctrller.getError());
     }
 
     protected boolean isFinished() {

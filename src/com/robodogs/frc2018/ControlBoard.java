@@ -30,8 +30,8 @@ public class ControlBoard {
             toggleClaw = new JoystickButton(mechStick, ControllerMap.B),
             toggleHook = new JoystickButton(mechStick, ControllerMap.leftJoyButton);
         
-        AxisButton ascend = new AxisButton(mechStick, ControllerMap.rightJoyYAxis, 0.8),
-            descend = new AxisButton(mechStick, ControllerMap.rightJoyYAxis, -0.8),
+        AxisButton ascend = new AxisButton(mechStick, ControllerMap.rightJoyYAxis, -0.8),
+            descend = new AxisButton(mechStick, ControllerMap.rightJoyYAxis, 0.8),
             wind = new AxisButton(mechStick, ControllerMap.leftJoyYAxis, 0.8),
             unwind = new AxisButton(mechStick, ControllerMap.leftJoyYAxis, -0.8);
         
@@ -43,7 +43,7 @@ public class ControlBoard {
         
         ascend.whileActive(new Ascend());
         descend.whileActive(new Descend());
-        wind.whileActive(new Wind());
+        //wind.whileActive(new Wind());
         unwind.whileActive(new Unwind());
     }
     
