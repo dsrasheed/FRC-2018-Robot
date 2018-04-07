@@ -1,0 +1,11 @@
+* {
+    box-sizing: border-box;
+}
+body {
+    margin: 0;
+}
+#field-container {
+    width: 972px;
+    height: 486px;
+    margin: 40px auto 0;
+}
