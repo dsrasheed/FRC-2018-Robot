@@ -18,6 +18,9 @@ class Field {
 
         var containerWidth = container.offsetWidth;
         var containerHeight = container.offsetHeight;
+
+        if (containerWidth/containerHeight !== Field.dimensions.width/Field.dimensions.height)
+            throw 'Field container is not the correct aspect ratio';
             
         this.canvas.width = Field.dimensions.width;
         this.canvas.height = Field.dimensions.height;
@@ -34,14 +37,14 @@ class Field {
 
         // draw floor
         ctx.save();
-        ctx.moveTo(0,29.69);
+        ctx.moveTo(0,30);
         ctx.lineTo(36,0);
         ctx.lineTo(612,0);
-        ctx.lineTo(648,29.69);
-        ctx.lineTo(648,294.31);
+        ctx.lineTo(648,30);
+        ctx.lineTo(648,294);
         ctx.lineTo(612,324);
         ctx.lineTo(36,324);
-        ctx.lineTo(0,294.31);
+        ctx.lineTo(0,294);
         ctx.closePath();
         ctx.fillStyle = 'green';
         ctx.fill();
@@ -49,8 +52,38 @@ class Field {
 
         // draw tape markings
         ctx.save();
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(
+        // horizontal center line
+        ctx.moveTo(0,162);
+        ctx.lineTo(648,162);
+        // vertical center line
+        ctx.moveTo(324,0);
+        ctx.lineTo(324,324);
+        // auto lines
+        ctx.moveTo(121,0);
+        ctx.lineTo(121,324);
+        ctx.moveTo(527,0);
+        ctx.lineTo(527,324);
+        // stroke black tape markings
+        ctx.strokeStyle = 'black';
+        ctx.stroke();
+        // draw exchange tape markings
+        ctx.beginPath();
+        ctx.moveTo(0,149);
+        ctx.lineTo(35,149);
+        ctx.lineTo(35,103);
+        ctx.lineTo(0,103);
+        ctx.strokeStyle = 'red';
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(648,175);
+        ctx.lineTo(613,175);
+        ctx.lineTo(613,221);
+        ctx.lineTo(648,221);
+        ctx.strokeStyle = 'blue';
+        ctx.stroke();
+        ctx.restore();
     }
 
     drawWaypoints(waypoints) {
