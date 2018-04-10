@@ -1,7 +1,5 @@
 (function() {
-
 class Field {
-   
     static get dimensions() {
         return {
             width: 648,
@@ -46,7 +44,7 @@ class Field {
         ctx.lineTo(36,324);
         ctx.lineTo(0,294);
         ctx.closePath();
-        ctx.fillStyle = 'green'; // 'rgb(101,99,100)';
+        ctx.fillStyle = 'rgb(101,99,100)';
         ctx.fill();
         ctx.restore();
 
@@ -110,14 +108,12 @@ class Field {
         ctx.lineTo(508,184); // ctx.lineTo(508,183.5);
         ctx.strokeStyle = 'blue';
         ctx.stroke();
-        // end
         ctx.restore();
 
         // draw switches
         ctx.save();
         ctx.lineWidth = 2;
         // switch containers
-        ctx.beginPath();
         ctx.strokeStyle = 'rgb(168,175,194)';
         ctx.strokeRect(141,86,54,152); // ctx.strokeRect(141,86.25,54,151.5);
         ctx.strokeRect(453,86,54,152); // ctx.strokeRect(453,86.25,54,151.5);
@@ -131,15 +127,50 @@ class Field {
         ctx.fillRect(456,198,48,36); // ctx.fillRect(456,197.75,48,36);
         // switch middle bar
         ctx.fillStyle = 'rgb(168,175,194)';
-        ctx.fillRect(164,124,7,76); // ctx.fillRect(164.4,124.25,7.2,75.5);
-        ctx.fillRect(476,124,7,76); // ctx.fillRect(476.4,124.25,7.2,75.5);
+        ctx.fillRect(162,124,12,76); // ctx.fillRect(164.4,124.25,7.2,75.5);
+        ctx.fillRect(474,124,12,76); // ctx.fillRect(476.4,124.25,7.2,75.5);
+        ctx.restore();
+
+        // draw platforms
+        ctx.save();
+        ctx.fillStyle = 'red';
+        ctx.fillRect(261,97,63,130);
+        ctx.fillStyle = 'blue';
+        ctx.fillRect(324,97,63,130);
+        ctx.restore();
+        
+        // draw scale
+        ctx.save();
+        // scale platform
+        ctx.beginPath();
+        ctx.fillStyle = 'rgb(8,8,8)';
+        ctx.strokeStyle = 'black'
+        ctx.lineWidth = 1;
+        ctx.rect(300,72,48,36);
+        ctx.rect(300,216,48,36);
+        ctx.stroke();
+        ctx.fill();
+        // scale middle bar
+        ctx.fillStyle = 'rgb(168,175,194)';
+        ctx.fillRect(318,106,12,112)
+        ctx.restore();
+        
+        // draw platform zone cubes
+        ctx.save();
+        ctx.beginPath();
+        for (let i = 0; i < 6; i++) {
+            ctx.rect(196,85 + i*13 + i*15,11,13);
+            ctx.rect(441,85 + i*13 + i*15,11,13);
+        }
+        ctx.fillStyle = 'yellow';
+        ctx.fill();
         ctx.restore();
     }
 
     drawWaypoints(waypoints) {
         
     }
-};
+}
 
 window.Field = Field;
 })();
