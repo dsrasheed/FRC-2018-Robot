@@ -14,11 +14,13 @@ public class AutoChooser {
     private SendableChooser<String> preferenceChooser;
     private SendableChooser<Character> robotPosChooser;
     private SendableChooser<Boolean> canCrossChooser;
+    private SendableChooser<Boolean> matchChooser;
 
     public AutoChooser() {
         preferenceChooser = new SendableChooser<>();
         robotPosChooser = new SendableChooser<>();
         canCrossChooser = new SendableChooser<>();
+        matchChooser = new SendableChooser<>();
     }
     
     public void setupSmartDashboard() {
@@ -35,9 +37,13 @@ public class AutoChooser {
         canCrossChooser.addDefault("Cannot Cross", false);
         canCrossChooser.addObject("Can Cross", true);
         
+        matchChooser.addDefault("In Match", true);
+        matchChooser.addObject("Debugging", false);
+
         SmartDashboard.putData("Auto Preference", preferenceChooser);
         SmartDashboard.putData("Robot Position", robotPosChooser);
         SmartDashboard.putData("Can Cross Over to Other Side", canCrossChooser);
+        SmartDashboard.putData("Match Mode", matchChooser);
     }
     
    public Command getAuto() {
@@ -46,6 +52,7 @@ public class AutoChooser {
        String preference = preferenceChooser.getSelected();
        char robotPos = robotPosChooser.getSelected();
        boolean canCross = canCrossChooser.getSelected();
+       boolean inMatch = matchChooser.getSelected();
        
        SmartDashboard.putString("Game Data", gameData);
        SmartDashboard.putString("Selected Robot Position", new Character(robotPos).toString());
@@ -60,7 +67,7 @@ public class AutoChooser {
        canCross = false;
        
        if (robotPos == MIDDLE)
-           return new SwitchAuto(false, robotPos, gameData.charAt(0));
+           return new SwitchAuto(false, robotPos, gameData.charAt(0),inMatch);
        
        if (robotPos == gameData.charAt(0) && robotPos == gameData.charAt(1))
            if (preference.equals("Both"))
@@ -71,12 +78,12 @@ public class AutoChooser {
            return new ScaleAuto(false, robotPos);*/
        
        if (robotPos == gameData.charAt(0))
-           return new SwitchAuto(false, robotPos, gameData.charAt(0));
+           return new SwitchAuto(false, robotPos, gameData.charAt(0),inMatch);
        
        if (canCross) {
            if (preference.equals("Both") || preference.equals("Scale"))
                return new ScaleAuto(true,robotPos);
-           return new SwitchAuto(true,robotPos,gameData.charAt(0));
+           return new SwitchAuto(true,robotPos,gameData.charAt(0),inMatch);
        }
        return new DrivePastLine();
    }

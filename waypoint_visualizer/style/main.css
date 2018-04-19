@@ -4,8 +4,8 @@
 body {
     margin: 0;
 }
-#field-container {
-    width: 972px;
-    height: 486px;
-    margin: 40px auto 0;
+#field {
+    width: 100%;
+    text-align: center;
+    margin-top: 40px;
 }

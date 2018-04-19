@@ -1,37 +1,60 @@
-(function() {
-class Field {
-    static get dimensions() {
-        return {
-            width: 648,
-            height: 324
-        };
-    }
+/**
+ * Field constructor
+ * @param {HTMLElement} container - element to contain field
+ */
+function Field(container) {
+    var scaleRatio, field, staticLayer, wpLayer, sceneCanvas;
 
-    /**
-     * Field constructor
-     * @param {HTMLElement} container - element must have an aspect ratio matching {Field.dimensions}
-     */
-    constructor(container) {
-        this.canvas = document.createElement('canvas');
+    // creation and sizing of the field and its layers
+    scaleRatio = parseInt(container.getAttribute('scale')) || 1;
+    field = new Concrete.Viewport({
+        container: container,
+        width: scaleRatio * Field.width,
+        height: scaleRatio * Field.height
+    });
+    this.scaleRatio = scaleRatio;
 
-        var containerWidth = container.offsetWidth;
-        var containerHeight = container.offsetHeight;
+    staticLayer = new Concrete.Layer();
+    wpLayer = new Concrete.Layer();
 
-        if (containerWidth/containerHeight !== Field.dimensions.width/Field.dimensions.height)
-            throw 'Field container does not have the correct aspect ratio';
-            
-        this.canvas.width = Field.dimensions.width;
-        this.canvas.height = Field.dimensions.height;
-        this.canvas.style.width = containerWidth + 'px';
-        this.canvas.style.height = containerHeight + 'px';
-        this.canvas.id = 'field';
+    field.add(staticLayer);
+    field.add(wpLayer);
 
-        container.appendChild(this.canvas);
-    }
+    staticLayer.scene.context.scale(scaleRatio, scaleRatio);
+    wpLayer.scene.context.scale(scaleRatio, scaleRatio);
 
-    // remove parameters, should call drawWaypoints when layers are implemented
-    draw(waypoints) {
-        var ctx = this.canvas.getContext('2d');
+    // event handlers
+    sceneCanvas = field.scene.canvas;  
+    sceneCanvas.addEventListener('mousedown', this.onMouseDown.bind(this));
+    sceneCanvas.addEventListener('mousemove', this.onMouseMove.bind(this));
+    sceneCanvas.addEventListener('mouseup', this.onMouseUp.bind(this));
+    sceneCanvas.addEventListener('mouseleave', this.onMouseUp.bind(this));
+
+    // bind viewport and layers to object
+    this.field = field;
+    this.wpLayer = wpLayer;
+    this.staticLayer = staticLayer;
+
+    this.waypoints = [];
+    this.keyToWaypoint = {};
+}
+
+Object.defineProperty(Field, 'width', {
+    writable: false,
+    configurable: false,
+    value: 648
+});
+
+Object.defineProperty(Field, 'height', {
+    writable: false,
+    configurable: false,
+    value: 324
+});
+
+Field.prototype = {
+
+    draw() {
+        var ctx = this.staticLayer.scene.context;
 
         // draw floor
         ctx.save();
@@ -73,39 +96,39 @@ class Field {
         ctx.lineTo(613,221);
         ctx.lineTo(648,221);
         // platform zone boundaries
-        ctx.moveTo(196,96); // ctx.moveTo(196,96.25);
-        ctx.lineTo(452,96); // ctx.lineTo(452,96.25);
-        ctx.moveTo(196,228); // ctx.moveTo(196,227.75);
-        ctx.lineTo(452,228); // ctx.lineTo(452,227.75);
+        ctx.moveTo(196,96);
+        ctx.lineTo(452,96);
+        ctx.moveTo(196,228);
+        ctx.lineTo(452,228);
         // stroke black tape
         ctx.strokeStyle = 'black';
         ctx.stroke();
         // null zone boundaries
         ctx.beginPath();
         ctx.moveTo(289,0);
-        ctx.lineTo(289,94); // ctx.lineTo(289,94.25);
-        ctx.lineTo(359,94); // ctx.lineTo(359,94.25);
+        ctx.lineTo(289,94);
+        ctx.lineTo(359,94);
         ctx.lineTo(359,0);
         ctx.moveTo(289,324);
-        ctx.lineTo(289,230); // ctx.lineTo(289,229.75);
-        ctx.lineTo(359,230); // ctx.lineTo(359,229.75);
+        ctx.lineTo(289,230);
+        ctx.lineTo(359,230);
         ctx.lineTo(359,324);
         ctx.strokeStyle = 'rgb(168,175,194)';
         ctx.stroke();
         // red power cube zone boundary
         ctx.beginPath();
-        ctx.moveTo(140,141); // ctx.moveTo(140,140.5);
-        ctx.lineTo(99,141); // ctx.lineTo(99,140.5);
-        ctx.lineTo(99,184); // ctx.lineTo(99,183.5);
-        ctx.lineTo(140,184); // ctx.lineTo(140,183.5);
+        ctx.moveTo(140,141);
+        ctx.lineTo(99,141);
+        ctx.lineTo(99,184);
+        ctx.lineTo(140,184);
         ctx.strokeStyle = 'red';
         ctx.stroke();
         // blue power cube zone boundary
         ctx.beginPath();
-        ctx.moveTo(508,141); // ctx.moveTo(508,140.5);
-        ctx.lineTo(549,141); // ctx.lineTo(549,140.5);
-        ctx.lineTo(549,184); // ctx.lineTo(549,183.5);
-        ctx.lineTo(508,184); // ctx.lineTo(508,183.5);
+        ctx.moveTo(508,141);
+        ctx.lineTo(549,141);
+        ctx.lineTo(549,184);
+        ctx.lineTo(508,184);
         ctx.strokeStyle = 'blue';
         ctx.stroke();
         ctx.restore();
@@ -115,20 +138,20 @@ class Field {
         ctx.lineWidth = 2;
         // switch containers
         ctx.strokeStyle = 'rgb(168,175,194)';
-        ctx.strokeRect(141,86,54,152); // ctx.strokeRect(141,86.25,54,151.5);
-        ctx.strokeRect(453,86,54,152); // ctx.strokeRect(453,86.25,54,151.5);
+        ctx.strokeRect(141,86,54,152);
+        ctx.strokeRect(453,86,54,152);
         // switch platforms
         ctx.restore();
         ctx.save();
         ctx.fillStyle = 'rgb(8,8,8)';
-        ctx.fillRect(144,90,48,36); // ctx.fillRect(144,90.25,48,36);
-        ctx.fillRect(456,90,48,36); // ctx.fillRect(456,90.25,48,36);
-        ctx.fillRect(144,198,48,36); // ctx.fillRect(144,197.75,48,36);
-        ctx.fillRect(456,198,48,36); // ctx.fillRect(456,197.75,48,36);
+        ctx.fillRect(144,90,48,36);
+        ctx.fillRect(456,90,48,36);
+        ctx.fillRect(144,198,48,36);
+        ctx.fillRect(456,198,48,36);
         // switch middle bar
         ctx.fillStyle = 'rgb(168,175,194)';
-        ctx.fillRect(162,124,12,76); // ctx.fillRect(164.4,124.25,7.2,75.5);
-        ctx.fillRect(474,124,12,76); // ctx.fillRect(476.4,124.25,7.2,75.5);
+        ctx.fillRect(162,124,12,76);
+        ctx.fillRect(474,124,12,76);
         ctx.restore();
 
         // draw platforms
@@ -165,12 +188,104 @@ class Field {
         ctx.fillStyle = 'yellow';
         ctx.fill();
         ctx.restore();
-    }
 
-    drawWaypoints(waypoints) {
+        this.field.render();
+    },
+
+    onMouseDown(e) {
+        var x = e.offsetX / 2, y = e.offsetY / 2,
+            key, waypoint, heading;
+        console.log('X: ' + x + ' Y: ' + y);
         
-    }
-}
+        // user clicks on an existing waypoint
+        key = this.wpLayer.hit.getIntersection(x,y);
+        waypoint = this.keyToWaypoint[key];
+        if (waypoint) {
+            this.selectedWaypoint = waypoint;
+            this.drawWaypoints();
+            return;
+        }
+        
+        // user clicks on empty spot on field
+        heading = 90;
+        if (this.waypoints.length > 1)
+            heading = this.waypoints[this.waypoints.length-1].heading;
+        waypoint = new Waypoint(x,y,heading);
+        this.selectedWaypoint = waypoint;
+        this.add(waypoint);
+    },
 
-window.Field = Field;
-})();
+    onMouseMove(e) {
+        var selected = this.selectedWaypoint;
+        if (selected != null) {
+            let x = e.offsetX / 2, y = e.offsetY / 2;
+            selected.x = x;
+            selected.y = y;
+            this.drawWaypoints();
+        }
+    },
+
+    onMouseUp(e) {
+        this.selectedWaypoint = null;
+        this.drawWaypoints();
+    },
+
+    add(waypoint) {
+        var key = waypoint.id,
+            hit = this.wpLayer.hit;
+        
+        hit.registerKey(key);
+        waypoint.hitColor = hit.getColorFromKey(key);
+        this.keyToWaypoint[key] = waypoint;
+
+        this.waypoints.push(waypoint);
+        
+        this.drawWaypoints();
+    },
+
+    remove(waypoint) {
+    },
+
+    drawWaypoints() {
+        var waypoints = this.waypoints,
+            sceneCtx = this.wpLayer.scene.context,
+            hitCtx = this.wpLayer.hit.context;
+        
+        this.wpLayer.scene.clear();
+        this.wpLayer.hit.clear();
+        for (let i = 0; i < waypoints.length; i++) {
+            let waypoint = waypoints[i],
+                x = waypoint.x, y = waypoint.y;
+            
+            sceneCtx.beginPath();
+            sceneCtx.fillStyle = 'green';
+            if (this.selectedWaypoint === waypoint)
+                sceneCtx.fillStyle = 'seagreen';
+            sceneCtx.arc(x,y,5,0,2 * Math.PI);
+            sceneCtx.fill();
+
+            hitCtx.beginPath();
+            hitCtx.arc(x,y,5,0,2 * Math.PI);
+            hitCtx.fillStyle = waypoint.hitColor;
+            hitCtx.fill();
+        }
+        this.field.render();
+    }
+
+};
+Field.prototype.constructor = Field;
+
+
+/*
+ * Waypoint constructor
+ * @param {Number} x - x position of point
+ * @param {Number} y - y position of point
+ * @param {Number} heading - heading of point
+ */
+function Waypoint(x,y,heading) {
+    this.x = x || 0;
+    this.y = y || 0;
+    this.heading = heading || 90;
+    this.id = Waypoint.idCounter++;
+}
+Waypoint.idCounter = 0;

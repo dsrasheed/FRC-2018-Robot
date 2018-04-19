@@ -1,5 +1,10 @@
-var container = document.getElementById('field-container');
-var f = new Field(container);
-var waypoints = [];
-f.draw(waypoints);
+const container = document.getElementById('field');
+const f = new Field(container);
+const waypoints = [];
+f.draw();
+f.drawWaypoints([
+    [0,30],
+    [20, 40],
+    [25, 36]
+]);
 

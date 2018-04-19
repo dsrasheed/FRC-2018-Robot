@@ -20,6 +20,7 @@ public class Claw extends Subsystem {
     private Solenoid reverseLeft;
     private Solenoid forwardRight;
     private Solenoid reverseRight;
+    private Solenoid pusher;
     
     private boolean isLifted;
 
@@ -27,8 +28,8 @@ public class Claw extends Subsystem {
         master = new TalonSRX(Constants.Claw.kMasterCANID);
         slave = new TalonSRX(Constants.Claw.kSlaveCANID);
         
-        master.configContinuousCurrentLimit(18, 0);
-        slave.configContinuousCurrentLimit(18, 0);
+        master.configContinuousCurrentLimit(20, 0);
+        slave.configContinuousCurrentLimit(20, 0);
         master.configPeakCurrentLimit(0, 0);
         slave.configPeakCurrentLimit(0, 0);
         master.configPeakCurrentDuration(0, 0);
@@ -45,6 +46,7 @@ public class Claw extends Subsystem {
         reverseLeft = new Solenoid(Constants.Claw.kLeftReversePort);
         forwardRight = new Solenoid(Constants.Claw.kRightForwardPort);
         reverseRight = new Solenoid(Constants.Claw.kRightReversePort);
+        pusher = new Solenoid(Constants.Claw.kPusherPort);
     }
     
     public void suck() {
@@ -63,6 +65,10 @@ public class Claw extends Subsystem {
  
     public void spit(double value) {
         master.set(ControlMode.PercentOutput, Math.abs(value));
+    }
+    
+    public void push(boolean value) {
+        pusher.set(value);
     }
     
     public void lift() {
@@ -94,6 +100,7 @@ public class Claw extends Subsystem {
      
     public void initDefaultCommand() {
         lift();
+        pusher.set(false);
     }
     
     public void outputToSmartDashboard() {

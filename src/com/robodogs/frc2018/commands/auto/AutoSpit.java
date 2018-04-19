@@ -8,20 +8,18 @@ public class AutoSpit extends Spit {
     
     private double duration;
     private double startTime;
-    private double speed;
     
     public AutoSpit(double duration) {
         this(duration,1.0);
     }
     
     public AutoSpit(double duration, double speed) {
-        super();
+        super(speed);
         this.duration = duration;
-        this.speed = speed;
     }
 
     protected void initialize() {
-        Robot.claw.spit(speed);
+        super.initialize();
         startTime = Timer.getFPGATimestamp();
     }
 

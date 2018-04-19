@@ -7,27 +7,26 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwitchAuto extends CommandGroup {
 
-    public SwitchAuto(boolean crossOver,char robotPos, char switchPos) {
+    public SwitchAuto(boolean crossOver,char robotPos, char switchPos, boolean inMatch) {
         
         if (robotPos == AutoChooser.MIDDLE) {
             addSequential(new LiftClaw());
             
-            /*if (switchPos == AutoChooser.LEFT) {
-                //addSequential(new FollowPath("MiddleToLeftSwitch")); // Left switch from middle
-                SmartDashboard.putBoolean("Left Switch Auto", true);
-                SmartDashboard.putBoolean("Right Switch Auto", false);
-                //addSequential(new AutoSpit(5.0));
+            if (!inMatch) {
+                if (switchPos == AutoChooser.LEFT) {
+                    addSequential(new FollowPath("MiddleToLeftSwitch"));
+                    SmartDashboard.putString("Middle Auto", "Left");
+                }
+                else {
+                    addSequential(new FollowPath("MiddleToRightSwitch"));
+                    SmartDashboard.putString("Middle Auto", "Right");
+                }
+                addSequential(new AutoSpit(5.0));
+            } else {
+                addSequential(new FollowPath("MiddleToRightSwitch"));
+                if (switchPos == AutoChooser.RIGHT)
+                    addSequential(new AutoSpit(5.0));
             }
-            else {
-                addSequential(new FollowPath("MiddleToRightSwitch")); // Right switch from middle
-                SmartDashboard.putBoolean("Right Switch Auto", true);
-                SmartDashboard.putBoolean("Left Switch Auto", false);
-                addSequential(new AutoSpit(5.0));
-            }*/
-            
-            addSequential(new FollowPath("MiddleToRightSwitch"));
-            if (switchPos == AutoChooser.RIGHT)
-                addSequential(new AutoSpit(5.0));
             return;
         }
         
