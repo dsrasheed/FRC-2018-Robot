@@ -29,7 +29,7 @@ function Field(container) {
     sceneCanvas.addEventListener('mousemove', this.onMouseMove.bind(this));
     sceneCanvas.addEventListener('mouseup', this.onMouseUp.bind(this));
     sceneCanvas.addEventListener('mouseleave', this.onMouseUp.bind(this));
-    addEventListener('keydown', this.onDeleteKeyUp.bind(this));
+    addEventListener('keydown', this.onDeleteKeyDown.bind(this));
 
     // bind viewport and layers to object
     this.viewport = viewport;
@@ -242,22 +242,23 @@ Field.prototype = {
         x = evt.offsetX / this.scaleRatio;
         y = evt.offsetY / this.scaleRatio;
 
-        // begin click and drag if user clicks on existing waypoint
         key = this.wpLayer.hit.getIntersection(x,y);
         waypoint = this.keyToWaypoint[key];
+
+        // begin click and drag when user clicks on existing waypoint
         if (waypoint) {
             this.selectedWaypoint = waypoint;
             this.drawWaypoints();
-            return;
+        } 
+        // create a new waypoint since click was on empty spot
+        else {
+            heading = 90;
+            if (this.waypoints.length > 1)
+                heading = this.waypoints[this.waypoints.length-1].heading;
+            waypoint = new Waypoint(x,y,heading);
+            this.selectedWaypoint = waypoint;
+            this.add(waypoint);
         }
-        
-        // create a new waypoint if user clicks on empty space on field
-        heading = 90;
-        if (this.waypoints.length > 1)
-            heading = this.waypoints[this.waypoints.length-1].heading;
-        waypoint = new Waypoint(x,y,heading);
-        this.selectedWaypoint = waypoint;
-        this.add(waypoint);
     },
     /*
      * Handles mouse move, drags a selected waypoint
@@ -283,9 +284,10 @@ Field.prototype = {
         this.drawWaypoints();
     },
     /*
-     *
+     * Handles delete key press, deletes the selected waypoint
+     * @param {KeyboardEvent} evt
      */
-    onDeleteKeyUp(evt) {
+    onDeleteKeyDown(evt) {
         var selected = this.selectedWaypoint;
         if (selected != null && evt.key === 'Backspace') {
             this.remove(selected);
