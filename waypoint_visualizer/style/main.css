@@ -4,8 +4,16 @@
 body {
     margin: 0;
 }
-#field {
+#field-container {
     width: 100%;
     text-align: center;
     margin-top: 40px;
+}
+.field-controls {
+    display: inline-block;
+    margin: auto;
+    text-align: left;
+}
+input[type="radio"] {
+    
 }

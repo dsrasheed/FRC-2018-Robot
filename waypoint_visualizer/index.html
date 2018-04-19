@@ -6,7 +6,13 @@
     <link href="style/main.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
-    <div id="field" scale="2"></div>
+    <div id="field-container">
+        <div id="field" scale="2"></div>
+        <div class="field-controls">
+            <input type="radio" name="field-mode" value="edit" checked>Edit Waypoints</input>
+            <input type="radio" name="field-mode" value="view">View Spline</input>
+        </div>
+    </div>
     <script src="js/lib/concrete.js"></script>
     <script src="js/lib/Smooth.js"></script>
     <script src="js/field.js"></script>

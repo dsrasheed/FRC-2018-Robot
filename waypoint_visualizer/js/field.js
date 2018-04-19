@@ -3,11 +3,11 @@
  * @param {HTMLElement} container - element to contain field
  */
 function Field(container) {
-    var scaleRatio, field, staticLayer, wpLayer, sceneCanvas;
+    var scaleRatio, viewport, staticLayer, wpLayer, sceneCanvas;
 
     // creation and sizing of the field and its layers
     scaleRatio = parseInt(container.getAttribute('scale')) || 1;
-    field = new Concrete.Viewport({
+    viewport = new Concrete.Viewport({
         container: container,
         width: scaleRatio * Field.width,
         height: scaleRatio * Field.height
@@ -17,21 +17,22 @@ function Field(container) {
     staticLayer = new Concrete.Layer();
     wpLayer = new Concrete.Layer();
 
-    field.add(staticLayer);
-    field.add(wpLayer);
+    viewport.add(staticLayer);
+    viewport.add(wpLayer);
 
     staticLayer.scene.context.scale(scaleRatio, scaleRatio);
     wpLayer.scene.context.scale(scaleRatio, scaleRatio);
 
     // event handlers
-    sceneCanvas = field.scene.canvas;  
+    sceneCanvas = viewport.scene.canvas;  
     sceneCanvas.addEventListener('mousedown', this.onMouseDown.bind(this));
     sceneCanvas.addEventListener('mousemove', this.onMouseMove.bind(this));
     sceneCanvas.addEventListener('mouseup', this.onMouseUp.bind(this));
     sceneCanvas.addEventListener('mouseleave', this.onMouseUp.bind(this));
+    addEventListener('keydown', this.onDeleteKeyUp.bind(this));
 
     // bind viewport and layers to object
-    this.field = field;
+    this.viewport = viewport;
     this.wpLayer = wpLayer;
     this.staticLayer = staticLayer;
 
@@ -53,6 +54,9 @@ Object.defineProperty(Field, 'height', {
 
 Field.prototype = {
 
+    /*
+     * Draw the static elements of the field
+     */
     draw() {
         var ctx = this.staticLayer.scene.context;
 
@@ -189,15 +193,56 @@ Field.prototype = {
         ctx.fill();
         ctx.restore();
 
-        this.field.render();
+        this.viewport.render();
     },
+    /*
+     * Draw the waypoints on the field
+     */
+    drawWaypoints() {
+        var waypoints = this.waypoints,
+            sceneCtx = this.wpLayer.scene.context,
+            hitCtx = this.wpLayer.hit.context;
 
-    onMouseDown(e) {
-        var x = e.offsetX / 2, y = e.offsetY / 2,
-            key, waypoint, heading;
-        console.log('X: ' + x + ' Y: ' + y);
+        this.wpLayer.scene.clear();
+        this.wpLayer.hit.clear();
+        for (let i = 0; i < waypoints.length; i++) {
+            let waypoint = waypoints[i], x = waypoint.x, y = waypoint.y;
+
+            // draw connecting line
+            if (waypoints.length - 1 - i != 0) {
+                sceneCtx.beginPath();
+                sceneCtx.moveTo(x,y);
+                sceneCtx.lineTo(waypoints[i+1].x, waypoints[i+1].y);
+                sceneCtx.lineWidth = 2;
+                sceneCtx.stroke();
+            }
+
+            // draw the waypoints
+            sceneCtx.beginPath();
+            sceneCtx.fillStyle = 'green';
+            if (this.selectedWaypoint === waypoint)
+                sceneCtx.fillStyle = 'orange';
+            sceneCtx.arc(x,y,4.5,0,2 * Math.PI);
+            sceneCtx.fill();
+
+            hitCtx.beginPath();
+            hitCtx.arc(x,y,4.5,0,2 * Math.PI);
+            hitCtx.fillStyle = waypoint.hitColor;
+            hitCtx.fill();
+        }
+        this.viewport.render();
+    },
+    /*
+     * Handles mouse down, selects or creates a waypoint
+     * @param {MouseEvent} evt
+     */
+    onMouseDown(evt) {
+        var x, y, key, waypoint, heading;
         
-        // user clicks on an existing waypoint
+        x = evt.offsetX / this.scaleRatio;
+        y = evt.offsetY / this.scaleRatio;
+
+        // begin click and drag if user clicks on existing waypoint
         key = this.wpLayer.hit.getIntersection(x,y);
         waypoint = this.keyToWaypoint[key];
         if (waypoint) {
@@ -206,7 +251,7 @@ Field.prototype = {
             return;
         }
         
-        // user clicks on empty spot on field
+        // create a new waypoint if user clicks on empty space on field
         heading = 90;
         if (this.waypoints.length > 1)
             heading = this.waypoints[this.waypoints.length-1].heading;
@@ -214,22 +259,42 @@ Field.prototype = {
         this.selectedWaypoint = waypoint;
         this.add(waypoint);
     },
-
-    onMouseMove(e) {
+    /*
+     * Handles mouse move, drags a selected waypoint
+     * @param {MouseEvent} evt
+     */
+    onMouseMove(evt) {
         var selected = this.selectedWaypoint;
         if (selected != null) {
-            let x = e.offsetX / 2, y = e.offsetY / 2;
+            let x, y;
+            x = evt.offsetX / this.scaleRatio;
+            y = evt.offsetY / this.scaleRatio;
             selected.x = x;
             selected.y = y;
             this.drawWaypoints();
         }
     },
-
-    onMouseUp(e) {
+    /*
+     * Handles mouse up, deselects a selected waypoint
+     * @param {MouseEvent} evt
+     */
+    onMouseUp(evt) {
         this.selectedWaypoint = null;
         this.drawWaypoints();
     },
-
+    /*
+     *
+     */
+    onDeleteKeyUp(evt) {
+        var selected = this.selectedWaypoint;
+        if (selected != null && evt.key === 'Backspace') {
+            this.remove(selected);
+        }
+    },
+    /*
+     * Adds a waypoint and sets it up for hit detection
+     * @param {Waypoint} waypoint - the waypoint to add
+     */
     add(waypoint) {
         var key = waypoint.id,
             hit = this.wpLayer.hit;
@@ -242,34 +307,18 @@ Field.prototype = {
         
         this.drawWaypoints();
     },
-
+    /*
+     * Removes a waypoint
+     * @param {Waypoint} waypoint - the waypoint to remove
+     */
     remove(waypoint) {
-    },
-
-    drawWaypoints() {
-        var waypoints = this.waypoints,
-            sceneCtx = this.wpLayer.scene.context,
-            hitCtx = this.wpLayer.hit.context;
-        
-        this.wpLayer.scene.clear();
-        this.wpLayer.hit.clear();
+        var waypoints = this.waypoints;
         for (let i = 0; i < waypoints.length; i++) {
-            let waypoint = waypoints[i],
-                x = waypoint.x, y = waypoint.y;
-            
-            sceneCtx.beginPath();
-            sceneCtx.fillStyle = 'green';
-            if (this.selectedWaypoint === waypoint)
-                sceneCtx.fillStyle = 'seagreen';
-            sceneCtx.arc(x,y,5,0,2 * Math.PI);
-            sceneCtx.fill();
-
-            hitCtx.beginPath();
-            hitCtx.arc(x,y,5,0,2 * Math.PI);
-            hitCtx.fillStyle = waypoint.hitColor;
-            hitCtx.fill();
+            if (waypoints[i] === waypoint) {
+                waypoints.splice(i,1);
+                this.drawWaypoints();
+            }
         }
-        this.field.render();
     }
 
 };
