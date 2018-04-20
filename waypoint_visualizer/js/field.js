@@ -214,6 +214,7 @@ Field.prototype = {
                 sceneCtx.moveTo(x,y);
                 sceneCtx.lineTo(waypoints[i+1].x, waypoints[i+1].y);
                 sceneCtx.lineWidth = 2;
+                sceneCtx.strokeStyle = 'rgb(255,255,255,0.6)';
                 sceneCtx.stroke();
             }
 
@@ -319,6 +320,7 @@ Field.prototype = {
             if (waypoints[i] === waypoint) {
                 waypoints.splice(i,1);
                 this.drawWaypoints();
+                return;
             }
         }
     }
